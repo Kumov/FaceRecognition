@@ -44,6 +44,9 @@
          <item>
           <layout class="QVBoxLayout" name="takePictureLayout">
            <item>
+            <widget class="QWidget" name="widget" native="true"/>
+           </item>
+           <item>
             <widget class="QPushButton" name="selectButton">
              <property name="font">
               <font>
@@ -56,6 +59,10 @@
              </property>
             </widget>
            </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="yesnoLayout">
            <item>
             <widget class="QLabel" name="whoLabel">
              <property name="font">
@@ -69,40 +76,46 @@
              </property>
             </widget>
            </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="buttonLayout">
            <item>
-            <widget class="QPushButton" name="yesButton">
-             <property name="font">
-              <font>
-               <family>Sans</family>
-               <pointsize>14</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>Yes</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="noButton">
-             <property name="font">
-              <font>
-               <family>Sans</family>
-               <pointsize>14</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>No</string>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <widget class="QPushButton" name="yesButton">
+               <property name="font">
+                <font>
+                 <family>Sans</family>
+                 <pointsize>14</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Yes</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="noButton">
+               <property name="font">
+                <font>
+                 <family>Sans</family>
+                 <pointsize>14</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>No</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </item>
          <item>
           <widget class="QLabel" name="indicatorLabel">
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
            <property name="font">
             <font>
              <family>Sans</family>
@@ -115,10 +128,23 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="selectComboBox"/>
+          <widget class="QComboBox" name="selectComboBox">
+           <property name="font">
+            <font>
+             <family>Sans</family>
+             <pointsize>14</pointsize>
+            </font>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QPushButton" name="trainButton">
+           <property name="font">
+            <font>
+             <family>Sans</family>
+             <pointsize>14</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>Train</string>
            </property>
