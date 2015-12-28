@@ -1,0 +1,4 @@
+# ignore temp files
+*.autosave
+*.swp
+*.pro.user
