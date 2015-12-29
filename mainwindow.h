@@ -9,6 +9,9 @@
 #include <omp.h>
 #include "opencvcamera.h"
 #include "imageviewer.h"
+#include "classifier.h"
+
+using classifier::FaceClassifier;
 
 namespace Ui {
 class MainWindow;
@@ -25,7 +28,9 @@ class MainWindow : public QMainWindow {
   Ui::MainWindow *ui = nullptr;
   OpenCVCamera camera;
   QTimer* timer = nullptr;
-  ImageViewer* imageViewer;
+  ImageViewer* mainDisplay = nullptr;
+  ImageViewer* faceDisplay = nullptr;
+  FaceClassifier* classifier = nullptr;
   const int INTERVAL = 33;
 };
 

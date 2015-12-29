@@ -44,7 +44,13 @@
          <item>
           <layout class="QVBoxLayout" name="takePictureLayout">
            <item>
-            <widget class="QWidget" name="widget" native="true"/>
+            <widget class="QWidget" name="faceWidget" native="true">
+             <layout class="QGridLayout" name="gridLayout_3">
+              <item row="0" column="0">
+               <layout class="QVBoxLayout" name="faceLayout"/>
+              </item>
+             </layout>
+            </widget>
            </item>
            <item>
             <widget class="QPushButton" name="selectButton">
