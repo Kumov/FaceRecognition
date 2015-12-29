@@ -1,6 +1,7 @@
 #ifndef CLASSIFIER_H
 #define CLASSIFIER_H
 
+#include <QtCore>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -12,10 +13,11 @@
 #include "process.h"
 #include "common.h"
 
-#ifdef DEBUG
+#ifdef QT_DEBUG
 using std::cout;
 using std::endl;
 #endif
+
 using std::string;
 using std::map;
 using std::vector;
