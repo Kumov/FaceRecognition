@@ -20,9 +20,24 @@
       <property name="maximumSize">
        <size>
         <width>16777215</width>
-        <height>100</height>
+        <height>200</height>
        </size>
       </property>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0">
+        <widget class="QTextEdit" name="logText">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="font">
+          <font>
+           <family>Sans</family>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
     <item row="0" column="0">
