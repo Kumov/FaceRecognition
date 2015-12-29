@@ -25,12 +25,12 @@ MainWindow::~MainWindow() {
       delete mainDisplay;
   if (faceDisplay != nullptr)
       delete faceDisplay;
+  if (classifier != nullptr)
+      delete classifier;
 }
 
 void MainWindow::setImage() {
-#ifdef QT_DEBUG
-  cout << "getting image" << endl;
-#endif
+  ui->logText->append("Capturing Image from Camera");
 
   QImage image = camera.getCurrentFrame();
   QImage face = camera.getCurrentFace();
