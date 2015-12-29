@@ -8,6 +8,11 @@ OpenCVCamera::OpenCVCamera() {
   if (!capture.isOpened()) {
     capture = VideoCapture(0);
   }
+  faceFinder = CascadeClassifier(FACE_FINDER_MODEL);
+
+#ifdef QT_DEBUG
+  cout << "init Classifier" << endl;
+#endif
 }
 
 OpenCVCamera::~OpenCVCamera() {
@@ -20,14 +25,35 @@ OpenCVCamera::~OpenCVCamera() {
 QImage OpenCVCamera::getCurrentFrame() {
   if (capture.isOpened()) {
     capture.read(frame);
-    Mat temp(frame.rows, frame.cols, frame.type());
-    cvtColor(frame, temp, CV_BGR2RGB);
+    frame.copyTo(main);
+    cvtColor(main, main, CV_BGR2RGB);
 
-    image = QImage((uchar*) temp.data, temp.cols,
-                   temp.rows, temp.step, QImage::Format_RGB888);
+    mainImage = QImage((uchar*) main.data,
+                   main.cols, main.rows,
+                   main.step, QImage::Format_RGB888);
   } else {
-    image = QImage(IMAGE_WIDTH, IMAGE_HEIGHT,
+    mainImage = QImage(IMAGE_WIDTH, IMAGE_HEIGHT,
                    QImage::Format_RGB888);
   }
-  return image;
+  return mainImage;
+}
+
+QImage OpenCVCamera::getCurrentFace() {
+  if (frame.data) {
+    vector<Rect> faces;
+    faceFinder.detectMultiScale(frame, faces);
+    if (faces.size() > 0) {
+      frame(faces[0]).copyTo(face);
+      cvtColor(face, face, CV_BGR2RGB);
+
+      faceImage = QImage(face.data,
+                         face.cols, face.rows,
+                         face.step, QImage::Format_RGB888);
+    } else {
+      faceImage = QImage();
+    }
+  } else {
+    faceImage = QImage();
+  }
+  return faceImage;
 }
