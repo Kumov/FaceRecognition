@@ -1,16 +1,12 @@
 #include "trainingtask.h"
 
-TrainingTask::TrainingTask()
-{
-  faceClassifier = new FaceClassifier(1, 1, 1, 3, 1, 1,
-                                      classifier::C_SVC,
-                                      classifier::LINEAR);
-}
-
 TrainingTask::~TrainingTask() {
   if (faceClassifier != nullptr) {
     delete faceClassifier;
   }
+#ifdef QT_DEBUG
+  cout << "release trainer" << endl;
+#endif
 }
 
 void TrainingTask::run() {
@@ -24,9 +20,23 @@ void TrainingTask::run() {
           QString(MODEL_EXTENSION);
   sendMessage("current model path: " + currentModelPath);
 
+  sendMessage("loading training data...");
   LoadingParams params(FACE_DATA_DIRECTORY, 0.9, classifier::LBP);
   loadTrainingData(params, trainingData, trainingLabel, names);
   sendMessage("training data loaded");
 
-  complete();
+  if (faceClassifier == nullptr) {
+    sendMessage("creating trainer...");
+    faceClassifier = new FaceClassifier(1, 1, 1, 3, 1, 1,
+                                        classifier::C_SVC,
+                                        classifier::LINEAR,
+                                        trainingData,
+                                        trainingLabel);
+    sendMessage("training started...");
+    faceClassifier->train();
+    sendMessage("saving model...");
+    faceClassifier->saveModel(currentModelPath.toStdString());
+  }
+
+  complete(currentModelPath);
 }
