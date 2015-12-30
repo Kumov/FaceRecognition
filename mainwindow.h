@@ -23,7 +23,7 @@ class MainWindow : public QMainWindow {
  public slots:
   void setImage();
   void train();
-  void trainingComplete();
+  void trainingComplete(QString modelPath);
   void setLog(QString log);
  private:
   Ui::MainWindow *ui = nullptr;

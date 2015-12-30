@@ -42,8 +42,8 @@ void MainWindow::train() {
     trainingTask = new TrainingTask();
     connect(trainingTask, SIGNAL(sendMessage(QString)),
             this, SLOT(setLog(QString)));
-    connect(trainingTask, SIGNAL(complete()),
-            this, SLOT(trainingComplete()));
+    connect(trainingTask, SIGNAL(complete(QString)),
+            this, SLOT(trainingComplete(QString)));
     trainingTask->start();
   } else {
     setLog("training already started!!");
@@ -54,8 +54,8 @@ void MainWindow::trainingComplete() {
   if (trainingTask != nullptr) {
     disconnect(trainingTask, SIGNAL(sendMessage(QString)),
             this, SLOT(setLog(QString)));
-    disconnect(trainingTask, SIGNAL(complete()),
-            this, SLOT(trainingComplete()));
+    disconnect(trainingTask, SIGNAL(complete(QString)),
+            this, SLOT(trainingComplete(QString)));
     delete trainingTask;
     trainingTask = nullptr;
     setLog("training complete");
