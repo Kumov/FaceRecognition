@@ -119,6 +119,7 @@ public:
                  FaceClassifierKernelType kernelType,
                  Mat& data, Mat& label);
   void saveModel();
+  void saveModel(string modelPath);
   void train();
   void train(Mat& data, Mat& label);
   int predict(Mat& sample);

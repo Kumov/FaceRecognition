@@ -326,7 +326,11 @@ FaceClassifier::FaceClassifier(double gamma, double c, double nu,
 }
 
 void FaceClassifier::saveModel() {
-    this->svm->save(MODEL_OUTPUT);
+  this->svm->save(MODEL_OUTPUT);
+}
+
+void FaceClassifier::saveModel(string modelPath) {
+  this->svm->save(modelPath);
 }
 
 void FaceClassifier::train() {
