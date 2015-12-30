@@ -57,7 +57,17 @@ void MainWindow::setupTraining() {
   currentModelPath = QString(MODEL_BASE_NAME) +
           QString::number(currenTime.toTime_t()) +
           QString(MODEL_EXTENSION);
+
+#ifdef QT_DEBUG
   cout << currentModelPath.toStdString() << endl;
+#endif
+
+  LoadingParams params(FACE_DATA_DIRECTORY, 0.9, classifier::LBP);
+  loadTrainingData(params, trainingData, trainingLabel, names);
+
+#ifdef QT_DEBUG
+  cout << "training data loaded" << endl;
+#endif
 }
 
 #undef MODEL_BASE_NAME

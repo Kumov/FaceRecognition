@@ -16,6 +16,10 @@
 
 using classifier::FaceClassifier;
 using classifier::loadTrainingData;
+using classifier::LoadingParams;
+using std::map;
+using std::string;
+using cv::Mat;
 
 namespace Ui {
 class MainWindow;
@@ -38,6 +42,8 @@ class MainWindow : public QMainWindow {
   ImageViewer* faceDisplay = nullptr;
   FaceClassifier* classifier = nullptr;
   QString currentModelPath;
+  Mat trainingData, trainingLabel;
+  map<int, string> names;
   const char* FACE_DATA_DIRECTORY = "faces";
   const int INTERVAL = 33;
 };
