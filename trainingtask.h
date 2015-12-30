@@ -5,6 +5,7 @@
 #include <QString>
 #include <QDateTime>
 #include <QDir>
+#include <QMap>
 #include <string>
 #include <map>
 
@@ -26,7 +27,7 @@ public:
   virtual void run();
 signals:
   void sendMessage(QString message);
-  void complete(QString modelPath);
+  void complete(QString modelPath, QMap<int, QString> names);
 private:
   QString currentModelPath;
   map<int, string> names;

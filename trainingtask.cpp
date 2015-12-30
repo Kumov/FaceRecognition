@@ -24,12 +24,13 @@ void TrainingTask::run() {
   LoadingParams params(FACE_DATA_DIRECTORY, 0.9, classifier::LBP);
   loadTrainingData(params, trainingData, trainingLabel, names);
   sendMessage("training data loaded");
+  cout << trainingData;
 
   if (faceClassifier == nullptr) {
     sendMessage("creating trainer...");
-    faceClassifier = new FaceClassifier(1, 1, 1, 3, 1, 1,
+    faceClassifier = new FaceClassifier(10, 1, 0, 1, 0, 0,
                                         classifier::C_SVC,
-                                        classifier::LINEAR,
+                                        classifier::RBF,
                                         trainingData,
                                         trainingLabel);
     sendMessage("training started...");
@@ -38,5 +39,9 @@ void TrainingTask::run() {
     faceClassifier->saveModel(currentModelPath.toStdString());
   }
 
-  complete(currentModelPath);
+  QMap<int, QString> nameMap;
+  for (auto it = names.begin() ; it != names.end() ; it ++) {
+    nameMap.insert(it->first, QString(it->second.c_str()));
+  }
+  complete(currentModelPath, nameMap);
 }
