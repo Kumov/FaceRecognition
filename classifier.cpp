@@ -36,17 +36,20 @@ void loadTrainingData(LoadingParams params,
     if (strcmp(userFiles[i].c_str(), BG_DIR) == 0) {
       // background images
       path = directory + string(SEPARATOR) + userFiles[i];
+      // mappings
+      names.insert(pair<int,string>((userFiles.size()-1),
+                                    userFiles[i]));
     } else {
       // users images
       path = directory + string(SEPARATOR) + userFiles[i] +
           string(POS_DIR);
+      // mappings
+      names.insert(pair<int,string>((i-userFiles.size()/2),
+                                    userFiles[i]));
     }
     scanDir(path, imagePaths, exclusion);
     trainingSize += (size_t) (imagePaths.size() * percent);
     testingSize += (size_t) (imagePaths.size() * (1-percent));
-    // mappings
-    names.insert(pair<int,string>((i-userFiles.size()/2),
-                                  userFiles[i]));
   }
 #ifdef QT_DEBUG
   cout << "trainingSize: " << trainingSize << endl;
