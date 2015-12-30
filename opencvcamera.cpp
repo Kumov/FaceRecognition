@@ -2,17 +2,19 @@
 
 OpenCVCamera::OpenCVCamera() {
 #ifdef QT_DEBUG
-  cout << "init VideoCapture" << endl;
+  cout << "starting VideoCapture" << endl;
 #endif
-
   if (!capture.isOpened()) {
     capture = VideoCapture(0);
   }
+#ifdef QT_DEBUG
+  cout << "init VideoCapture" << endl;
+#endif
   faceFinder = CascadeClassifier(FACE_FINDER_MODEL);
-
 #ifdef QT_DEBUG
   cout << "init Classifier" << endl;
 #endif
+
 }
 
 OpenCVCamera::~OpenCVCamera() {
