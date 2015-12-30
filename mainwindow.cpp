@@ -15,6 +15,8 @@ MainWindow::MainWindow(QWidget *parent) :
   timer->start(INTERVAL);
   connect(timer, SIGNAL(timeout()), this, SLOT(setImage()));
   connect(ui->trainButton, SIGNAL(pressed()), SLOT(train()));
+
+  qRegisterMetaType<QMap<int, QString> >();
 }
 
 MainWindow::~MainWindow() {
@@ -42,23 +44,37 @@ void MainWindow::train() {
     trainingTask = new TrainingTask();
     connect(trainingTask, SIGNAL(sendMessage(QString)),
             this, SLOT(setLog(QString)));
-    connect(trainingTask, SIGNAL(complete(QString)),
-            this, SLOT(trainingComplete(QString)));
+    connect(trainingTask,
+            SIGNAL(complete(QString, QMap<int, QString>)),
+            this,
+            SLOT(trainingComplete(QString, QMap<int, QString>)));
     trainingTask->start();
   } else {
     setLog("training already started!!");
   }
 }
 
-void MainWindow::trainingComplete() {
+void MainWindow::trainingComplete(QString modelPath,
+                                  QMap<int, QString> names) {
   if (trainingTask != nullptr) {
     disconnect(trainingTask, SIGNAL(sendMessage(QString)),
             this, SLOT(setLog(QString)));
-    disconnect(trainingTask, SIGNAL(complete(QString)),
-            this, SLOT(trainingComplete(QString)));
+    disconnect(trainingTask,
+            SIGNAL(complete(QString, QMap<int, QString>)),
+            this,
+            SLOT(trainingComplete(QString, QMap<int, QString>)));
     delete trainingTask;
     trainingTask = nullptr;
     setLog("training complete");
+    setLog("new model written: " + modelPath);
+
+    QMapIterator<int, QString> it(names);
+    while (it.hasNext()) {
+      it.next();
+      QString index = QString::number(it.key());
+      QString name = it.value();
+      setLog(name + ": " + index);
+    }
   }
 }
 

@@ -6,6 +6,7 @@
 #include <QPixmap>
 #include <QImage>
 #include <QString>
+#include <QMap>
 
 #include "opencvcamera.h"
 #include "imageviewer.h"
@@ -23,7 +24,7 @@ class MainWindow : public QMainWindow {
  public slots:
   void setImage();
   void train();
-  void trainingComplete(QString modelPath);
+  void trainingComplete(QString modelPath, QMap<int, QString> names);
   void setLog(QString log);
  private:
   Ui::MainWindow *ui = nullptr;
