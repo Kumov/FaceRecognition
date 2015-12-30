@@ -19,14 +19,16 @@ SOURCES += main.cpp\
     common.cpp \
     process.cpp \
     opencvcamera.cpp \
-    imageviewer.cpp
+    imageviewer.cpp \
+    trainingtask.cpp
 
 HEADERS  += mainwindow.h \
     classifier.h \
     common.h \
     process.h \
     opencvcamera.h \
-    imageviewer.h
+    imageviewer.h \
+    trainingtask.h
 
 FORMS    += mainwindow.ui
 
