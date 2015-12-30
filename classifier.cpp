@@ -25,50 +25,30 @@ void loadTrainingData(LoadingParams params,
   const FeatureType featureType = params.featureType;
 
   size_t trainingSize = 0, testingSize = 0;
-  Mat tnd, tnl, ttd, ttl, X;
-  vector<vector<Mat> > allImages;
   vector<string> userFiles, exclusion;
   exclusion.push_back(".");
   exclusion.push_back("..");
 
   scanDir(directory, userFiles, exclusion);
-
-  // read all images to vectors allImages
   for (uint32_t i = 0 ; i < userFiles.size() ; i ++) {
     string path;
-    vector<Mat> images;
     vector<string> imagePaths;
-
-    // there is no positive or negative background, just background
     if (strcmp(userFiles[i].c_str(), BG_DIR) == 0) {
+      // background images
       path = directory + string(SEPARATOR) + userFiles[i];
     } else {
-      path = directory + string(SEPARATOR) + userFiles[i] + string(POS_DIR);
+      // users images
+      path = directory + string(SEPARATOR) + userFiles[i] +
+          string(POS_DIR);
     }
     scanDir(path, imagePaths, exclusion);
-
-    // read individual images
-    for (uint32_t j = 0 ; j < imagePaths.size() ; j ++) {
-      string imagePath = path + string(SEPARATOR) + imagePaths[i];
-      Mat image = imread(imagePath);
-      if (image.data) {
-        images.push_back(image);
-      }
-    }
-    // add to allImages
-    allImages.push_back(images);
+    trainingSize += (size_t) (imagePaths.size() * percent);
+    testingSize += (size_t) (imagePaths.size() * (1-percent));
     // mappings
-    names.insert(pair<int,string>((i-userFiles.size()/2), userFiles[i]));
+    names.insert(pair<int,string>((i-userFiles.size()/2),
+                                  userFiles[i]));
   }
-
-  // set the training/testingSize according to the specified percent
-  for (uint32_t i = 0 ; i < allImages.size() ; i ++) {
-    trainingSize += (size_t) ((double)allImages[i].size() * percent);
-    testingSize += (size_t) ((double)allImages[i].size() * (1 - percent));
-  }
-
-  // debug info
-#ifdef DEBUG
+#ifdef QT_DEBUG
   cout << "trainingSize: " << trainingSize << endl;
   cout << "testingSize: " << testingSize << endl;
 #endif
@@ -83,90 +63,108 @@ void loadTrainingData(LoadingParams params,
       featureLength = 256;
       break;
   }
+
+  cout << "feature length: " << featureLength << endl;
   // data
-  tnd = Mat::zeros(trainingSize, featureLength, CV_32FC1);
-  ttd = Mat::zeros(testingSize, featureLength, CV_32FC1);
+  Mat tnd = Mat::zeros(trainingSize, featureLength, CV_32FC1);
+  Mat ttd = Mat::zeros(testingSize, featureLength, CV_32FC1);
   // labels
-  tnl = Mat::zeros(trainingSize, 1, CV_32SC1);
-  ttl = Mat::zeros(testingSize, 1, CV_32SC1);
+  Mat tnl = Mat::zeros(trainingSize, 1, CV_32SC1);
+  Mat ttl = Mat::zeros(testingSize, 1, CV_32SC1);
+  Mat image, X = Mat::zeros(1, featureLength, CV_32SC1);
 
   // extracting lbp/ctlp data for individual samples
-  X = Mat(1, featureLength, CV_32SC1);
   size_t trainingPos = 0, testingPos = 0;
-  for (uint32_t i = 0 ; i < allImages.size() ; i ++) {
-    vector<Mat> images = allImages[i];
-
-    // training data/labels: tnd tnl
-    size_t tns = (size_t)((double)images.size() * percent);
-    for (uint32_t j = 0 ; j < tns ; j ++) {
-      Mat image = images[j];
-      float* rowData = tnd.ptr<float>() + (j + trainingPos) * tnd.cols;
-
-      switch (featureType) {
-        case LBP:
-          process::computeLBP(image, X);
-          break;
-        case CTLP:
-          // TODO
-          // implement CTLP for processing module
-          break;
-      }
-
-      // copy the X sample to tnd
-      for (int32_t k = 0 ; k < tnd.cols ; k ++) {
-        rowData[k] = X.ptr<int>()[k];
-      }
-      // set label for this sample
-      tnl.ptr<int>()[j + trainingPos] = i - allImages.size() / 2;
+  for (uint32_t i = 0 ; i < userFiles.size() ; i ++) {
+    string path;
+    vector<string> imagePaths;
+    if (strcmp(userFiles[i].c_str(), BG_DIR) == 0) {
+      // background images
+      path = directory + string(SEPARATOR) + userFiles[i];
+    } else {
+      // users images
+      path = directory + string(SEPARATOR) + userFiles[i] +
+          string(POS_DIR);
     }
+    scanDir(path, imagePaths, exclusion);
 
-#ifdef DEBUG
-    cout << "current training size: " << trainingData << endl;
-    cout << "current training size: " << trainingLabel << endl;
+#ifdef QT_DEBUG
+    cout << "current training size: " << trainingPos << endl;
 #endif
-    trainingPos += tns;
 
-    // testing data/labels: ttd ttl
-    size_t tts = (size_t)((double)images.size() * (1 - percent));
-    for (uint32_t j = 0 ; j < tts ; j ++) {
-      Mat image = images[j + tns];
-      float* rowData = ttd.ptr<float>() + (j + testingPos) * ttd.cols;
+    // read individual images for training
+    size_t trainingImageCount = static_cast<size_t>(imagePaths.size() * percent);
+    for (uint32_t j = 0 ; j < trainingImageCount ; j ++) {
+      cout << "tnd.rows = " << tnd.rows << " j = " << j << endl;
 
-      switch (featureType) {
-        case LBP:
-          process::computeLBP(image, X);
-          break;
-        case CTLP:
-          // TODO
-          // implement CTLP for processing module
-          break;
+      string imagePath = path + string(SEPARATOR) + imagePaths[j];
+      image = imread(imagePath);
+      X = Mat::zeros(1, featureLength, CV_32SC1);
+      if (image.data) {
+        // compute feature
+        switch (featureType) {
+          case LBP:
+            process::computeLBP(image, X);
+            break;
+          case CTLP:
+            // TODO
+            // implement CTLP for processing module
+            break;
+        }
+        // copy the x sample to tnd
+        for (uint32_t k = 0 ; k < featureLength ; k ++) {
+          tnd.ptr<float>()[(j + trainingPos) * tnd.cols + k] =
+              static_cast<float>(X.ptr<int>()[k]);
+        }
+
+        // set label for this sample
+        tnl.ptr<int>()[j + trainingPos] = i - userFiles.size() / 2;
       }
-
-      // copy the X sample to tnd
-      for (int32_t k = 0 ; k < ttd.cols ; k ++) {
-        rowData[k] = X.ptr<int>()[k];
-      }
-      // set label for this sample
-      ttl.ptr<int>()[j + testingPos] = i - allImages.size() / 2;
     }
+    trainingPos += trainingImageCount;
 
-#ifdef DEBUG
-    cout << "current testing size: " << testingSize << endl;
-#endif
-    testingPos += tts;
+    // read individual images for testing
+    size_t testingImageCount = static_cast<size_t>(imagePaths.size() * (1-percent));
+    for (uint32_t j = 0 ; j < testingImageCount ; j ++) {
+      string imagePath = path + string(SEPARATOR) +
+          imagePaths[j + (size_t)(imagePaths.size() * percent)];
+      image = imread(imagePath);
+      X = Mat::zeros(1, featureLength, CV_32SC1);
+      if (image.data) {
+        // compute feature
+        switch (featureType) {
+          case LBP:
+            process::computeLBP(image, X);
+            break;
+          case CTLP:
+            // TODO
+            // implement CTLP for processing module
+            break;
+        }
+        // copy the x sample to tnd
+        for (uint32_t k = 0 ; k < featureLength ; k ++) {
+          ttd.ptr<float>()[(j + testingPos) * ttd.cols + k] =
+              static_cast<float>(X.ptr<int>()[k]);
+        }
+        // set label for this sample
+        ttl.ptr<int>()[j + testingPos] = i - userFiles.size() / 2;
+      }
+    }
+    testingPos += testingImageCount;
+
   }
 
   // debug info
-#ifdef DEBUG
-  cout << tnd << endl;
-  cout << ttd << endl;
+#ifdef QT_DEBUG
+//  cout << tnd << endl;
+//  cout << ttd << endl;
   cout << tnl << endl;
-  cout << ttl << endl;
+//  cout << ttl << endl;
 #endif
 
   // put all data/lables into trainingData/Labels
   trainingData = Mat::zeros(trainingSize + testingSize, featureLength, CV_32FC1);
-  trainingLabel = Mat::zeros(trainingSize + testingSize, featureLength, CV_32FC1);
+  trainingLabel = Mat::zeros(trainingSize + testingSize, 1, CV_32SC1);
 
   const uint32_t cols = trainingData.cols;
   for (uint32_t i = 0 ; i < trainingSize ; i ++) {
@@ -188,8 +186,8 @@ void loadTrainingData(LoadingParams params,
     trainingLabel.ptr<int>()[i + trainingSize] = ttl.ptr<int>()[i];
   }
 
-#ifdef DEBUG
-  cout << trainingData << endl;
+#ifdef QT_DEBUG
+//  cout << trainingData << endl;
   cout << trainingLabel << endl;
 #endif
 }
@@ -228,7 +226,7 @@ void FaceClassifier::setupSVM() {
       this->svm->setType(SVM::NU_SVR);
       break;
     default:
-#ifdef DEBUG
+#ifdef QT_DEBUG
       fprintf(stderr, "No such type of SVM implemented\n");
       fprintf(stderr, "default to C_SVC\n");
 #endif
@@ -250,7 +248,7 @@ void FaceClassifier::setupSVM() {
       this->svm->setKernel(SVM::SIGMOID);
       break;
     default:
-#ifdef DEBUG
+#ifdef QT_DEBUG
       fprintf(stderr, "No such kernel type of SVM implemented\n");
       fprintf(stderr, "default to RBF\n");
 #endif
@@ -328,7 +326,7 @@ FaceClassifier::FaceClassifier(double gamma, double c, double nu,
 }
 
 void FaceClassifier::saveModel() {
-	this->svm->save(MODEL_OUTPUT);
+    this->svm->save(MODEL_OUTPUT);
 }
 
 void FaceClassifier::train() {
@@ -345,7 +343,7 @@ void FaceClassifier::train() {
       this->svm->train(td);
       accuracy = this->testAccuracy();
 
-#ifdef DEBUG
+#ifdef QT_DEBUG
       fprintf(stdout, "test accuracy: %lf\n", accuracy);
 #endif
 
@@ -378,7 +376,7 @@ void FaceClassifier::train() {
     for (unsigned int i = 0 ; i < MAX_ITERATION ; i ++) {
       this->svm->train(td);
       accuracy = this->testAccuracy();
-#ifdef DEBUG
+#ifdef QT_DEBUG
       fprintf(stdout, "test accuracy: %lf\n", accuracy);
 #endif
 
@@ -412,7 +410,7 @@ void FaceClassifier::train() {
     this->setupSVM();
     this->svm->train(td);
   } else {
-#ifdef DEBUG
+#ifdef QT_DEBUG
     fprintf(stderr, "No training data and label prepared\n");
 #endif
   }
@@ -447,7 +445,7 @@ void FaceClassifier::train(Mat& data, Mat& label) {
       testingLabel.ptr<int>()[i] = label.ptr<int>()[loffset + i];
     }
   } else {
-#ifdef DEBUG
+#ifdef QT_DEBUG
     fprintf(stderr, "input data not suitable for training\n");
 #endif
   }
@@ -460,13 +458,13 @@ int FaceClassifier::predict(cv::Mat& sample) {
         sample.type() == trainingData.type()) {
       return this->svm->predict(sample);
     } else {
-#ifdef DEBUG
+#ifdef QT_DEBUG
       fprintf(stderr, "SVM not trained\n");
 #endif
       return INT_MAX;
     }
   } else {
-#ifdef DEBUG
+#ifdef QT_DEBUG
     fprintf(stderr, "SVM not trained\n");
 #endif
     return INT_MAX;
@@ -485,7 +483,7 @@ double FaceClassifier::testAccuracy() {
     }
     return (double) correct / testingLabel.rows;
   } else {
-#ifdef DEBUG
+#ifdef QT_DEBUG
     fprintf(stderr, "SVM not trained\n");
 #endif
     return 0;
