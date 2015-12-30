@@ -14,7 +14,6 @@ OpenCVCamera::OpenCVCamera() {
 #ifdef QT_DEBUG
   cout << "init Classifier" << endl;
 #endif
-
 }
 
 OpenCVCamera::~OpenCVCamera() {
