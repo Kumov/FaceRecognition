@@ -21,12 +21,12 @@ class TrainingTask : public QThread
 {
   Q_OBJECT
 public:
-  TrainingTask();
+  TrainingTask() {}
   virtual ~TrainingTask();
   virtual void run();
 signals:
   void sendMessage(QString message);
-  void complete();
+  void complete(QString modelPath);
 private:
   QString currentModelPath;
   map<int, string> names;
