@@ -5,21 +5,11 @@
 #include <QTimer>
 #include <QPixmap>
 #include <QImage>
-#include <QDir>
 #include <QString>
-#include <QDateTime>
 
-#include <omp.h>
 #include "opencvcamera.h"
 #include "imageviewer.h"
-#include "classifier.h"
-
-using classifier::FaceClassifier;
-using classifier::loadTrainingData;
-using classifier::LoadingParams;
-using std::map;
-using std::string;
-using cv::Mat;
+#include "trainingtask.h"
 
 namespace Ui {
 class MainWindow;
@@ -33,18 +23,15 @@ class MainWindow : public QMainWindow {
  public slots:
   void setImage();
   void train();
+  void trainingComplete();
+  void setLog(QString log);
  private:
-  void setupTraining();
   Ui::MainWindow *ui = nullptr;
   OpenCVCamera camera;
   QTimer* timer = nullptr;
   ImageViewer* mainDisplay = nullptr;
   ImageViewer* faceDisplay = nullptr;
-  FaceClassifier* classifier = nullptr;
-  QString currentModelPath;
-  Mat trainingData, trainingLabel;
-  map<int, string> names;
-  const char* FACE_DATA_DIRECTORY = "faces";
+  TrainingTask* trainingTask = nullptr;
   const int INTERVAL = 33;
 };
 

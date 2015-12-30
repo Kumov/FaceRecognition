@@ -1,9 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#define MODEL_BASE_NAME "facemodel"
-#define MODEL_EXTENSION ".xml"
-
 MainWindow::MainWindow(QWidget *parent) :
             QMainWindow(parent),
             ui(new Ui::MainWindow),
@@ -29,13 +26,9 @@ MainWindow::~MainWindow() {
     delete mainDisplay;
   if (faceDisplay != nullptr)
     delete faceDisplay;
-  if (classifier != nullptr)
-    delete classifier;
 }
 
 void MainWindow::setImage() {
-  ui->logText->append("Capturing Image from Camera");
-
   QImage image = camera.getCurrentFrame();
   QImage face = camera.getCurrentFace();
   mainDisplay->setImage(image);
@@ -45,30 +38,30 @@ void MainWindow::setImage() {
 }
 
 void MainWindow::train() {
-  QDir imageRoot(FACE_DATA_DIRECTORY);
-  if (!imageRoot.exists()) {
-    imageRoot.mkpath(".");
+  if (trainingTask == nullptr) {
+    trainingTask = new TrainingTask();
+    connect(trainingTask, SIGNAL(sendMessage(QString)),
+            this, SLOT(setLog(QString)));
+    connect(trainingTask, SIGNAL(complete()),
+            this, SLOT(trainingComplete()));
+    trainingTask->start();
+  } else {
+    setLog("training already started!!");
   }
-  setupTraining();
 }
 
-void MainWindow::setupTraining() {
-  QDateTime currenTime = QDateTime::currentDateTime();
-  currentModelPath = QString(MODEL_BASE_NAME) +
-          QString::number(currenTime.toTime_t()) +
-          QString(MODEL_EXTENSION);
-
-#ifdef QT_DEBUG
-  cout << currentModelPath.toStdString() << endl;
-#endif
-
-  LoadingParams params(FACE_DATA_DIRECTORY, 0.9, classifier::LBP);
-  loadTrainingData(params, trainingData, trainingLabel, names);
-
-#ifdef QT_DEBUG
-  cout << "training data loaded" << endl;
-#endif
+void MainWindow::trainingComplete() {
+  if (trainingTask != nullptr) {
+    disconnect(trainingTask, SIGNAL(sendMessage(QString)),
+            this, SLOT(setLog(QString)));
+    disconnect(trainingTask, SIGNAL(complete()),
+            this, SLOT(trainingComplete()));
+    delete trainingTask;
+    trainingTask = nullptr;
+    setLog("training complete");
+  }
 }
 
-#undef MODEL_BASE_NAME
-#undef MODEL_EXTENSION
+void MainWindow::setLog(QString log) {
+  ui->logText->append(log);
+}
