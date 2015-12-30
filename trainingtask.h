@@ -18,17 +18,16 @@ using cv::Mat;
 using std::map;
 using std::string;
 
-class TrainingTask : public QThread
-{
+class TrainingTask : public QThread {
   Q_OBJECT
-public:
+ public:
   TrainingTask() {}
   virtual ~TrainingTask();
   virtual void run();
-signals:
+ signals:
   void sendMessage(QString message);
   void complete(QString modelPath, QMap<int, QString> names);
-private:
+ private:
   QString currentModelPath;
   map<int, string> names;
   FaceClassifier* faceClassifier = nullptr;
