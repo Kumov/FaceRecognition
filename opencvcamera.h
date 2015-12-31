@@ -28,6 +28,7 @@ class OpenCVCamera {
   ~OpenCVCamera();
   QImage getCurrentFrame();
   QImage getCurrentFace();
+  void getCurrentFaceMat(Mat& face);
  private:
   VideoCapture capture;
   CascadeClassifier faceFinder;
