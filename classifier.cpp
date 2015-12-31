@@ -209,6 +209,20 @@ FaceClassifier::FaceClassifier() {
   this->setupSVM();
 }
 
+FaceClassifier::FaceClassifier(FaceClassifierParams param) {
+  this->type = param.type;
+  this->kernelType = param.kernelType;
+
+  this->gamma = param.gamma;
+  this->c = param.c;
+  this->nu = param.nu;
+  this->degree = param.degree;
+  this->coef0 = param.coef0;
+  this->p = param.p;
+
+  this->setupSVM();
+}
+
 void FaceClassifier::setupSVM() {
   this->svm = SVM::create();
 
@@ -478,6 +492,39 @@ int FaceClassifier::predict(cv::Mat& sample) {
   }
 }
 
+int FaceClassifier::predictImageSample(cv::Mat& imageSample) {
+  size_t featureLength = 0;
+  Mat lbp, sample;
+
+  switch (featureType) {
+    case LBP:
+      featureLength = 256;
+      break;
+    case CTLP:
+      featureLength = 81;
+      break;
+  }
+  lbp = Mat::zeros(1, featureLength, CV_32SC1);
+  sample = Mat::zeros(1, featureLength, CV_32FC1);
+
+  process::computeLBP(imageSample, lbp);
+  for (uint32_t i = 0 ; i < featureLength ; i ++)
+    sample.ptr<float>()[i] = static_cast<float>(lbp.ptr<int>()[i]);
+  cout << sample << endl;
+  if (this->svm->isTrained()) {
+      return this->svm->predict(sample);
+  } else {
+#ifdef QT_DEBUG
+    fprintf(stderr, "SVM not trained\n");
+#endif
+    return INT_MAX;
+  }
+}
+
+void FaceClassifier::load(string modelPath) {
+  svm = StatModel::load<SVM>(modelPath);
+}
+
 double FaceClassifier::testAccuracy() {
   if (this->svm->isTrained()) {
     size_t correct = 0;
@@ -496,7 +543,12 @@ double FaceClassifier::testAccuracy() {
     return 0;
   }
 }
+
+bool FaceClassifier::isLoaded() {
+  return svm->isTrained();
 }
+
+} // classifier namespace
 
 // undefine constants
 #undef DEFAULT_CLASSIIFIER_TYPE
