@@ -7,6 +7,9 @@
 #include <QImage>
 #include <QString>
 #include <QMap>
+#include <QFile>
+#include <QXmlStreamWriter>
+#include <QXmlStreamReader>
 
 #include "opencvcamera.h"
 #include "imageviewer.h"
@@ -16,6 +19,11 @@
 #define FACE_IMAGE_ROOT_DIR "faces"
 #define FACE_MODEL_BASE_NAME "facemodel"
 #define FACE_MODEL_EXTENSION ".xml"
+#define NAME_MAP "names.xml"
+#define LIST_NAME "list"
+#define ENTRY_NAME "entry"
+#define KEY_NAME "key"
+#define VALUE_NAME "value"
 #define INTERVAL 33
 #define PERCENT 0.9
 
@@ -32,6 +40,8 @@ class MainWindow : public QMainWindow {
  public:
   explicit MainWindow(QWidget *parent = 0);
   ~MainWindow();
+  void writeMap();
+  void readMap();
  public slots:
   void setImage();
   void train();
@@ -54,12 +64,25 @@ class MainWindow : public QMainWindow {
   const char* FACE_IMAGE_DIR = FACE_IMAGE_ROOT_DIR;
   const char* MODEL_BASE_NAME = FACE_MODEL_BASE_NAME;
   const char* MODEL_EXTENSION = FACE_MODEL_EXTENSION;
+  const char* MAPPING_FILE = NAME_MAP;
+  const char* LIST = LIST_NAME;
+  const char* ENTRY = ENTRY_NAME;
+  const char* KEY = KEY_NAME;
+  const char* VALUE = VALUE_NAME;
   const int CAMEAR_INTERVAL = INTERVAL;
   const double LOADING_PERCENT = PERCENT;
   const FeatureType FEATURE_TYPE = classifier::LBP;
 };
 
 #undef FACE_IMAGE_ROOT_DIR
+#undef FACE_MODEL_BASE_NAME
+#undef FACE_MODEL_EXTENSION
+#undef NAME_MAP
+#undef LIST_NAME
+#undef ENTRY_NAME
+#undef KEY_NAME
+#undef VALUE_NAME
 #undef INTERVAL
+#undef PERCENT
 
 #endif // MAINWINDOW_H
