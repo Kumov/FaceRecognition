@@ -1,5 +1,17 @@
 #include "trainingtask.h"
 
+TrainingTask::TrainingTask(QString _faceImageDirectory,
+                           QString _modelBaseName,
+                           QString _modelExtension,
+                           double _loadingPercent,
+                           FeatureType _featureType) {
+  faceImageDirectory = _faceImageDirectory;
+  modelBaseName = _modelBaseName;
+  modelExtension = _modelExtension;
+  loadingPercent = _loadingPercent;
+  featureType = _featureType;
+}
+
 TrainingTask::~TrainingTask() {
   if (faceClassifier != nullptr) {
     delete faceClassifier;
@@ -10,27 +22,34 @@ TrainingTask::~TrainingTask() {
 }
 
 void TrainingTask::run() {
-  QDir imageRoot(FACE_DATA_DIRECTORY);
+  // create image root directory if not exists
+  QDir imageRoot(faceImageDirectory);
   if (!imageRoot.exists()) {
     imageRoot.mkpath(".");
   }
+
+  // get current time stamp
   QDateTime currenTime = QDateTime::currentDateTime();
-  currentModelPath = QString(MODEL_BASE_NAME) +
+  currentModelPath = QString(modelBaseName) +
           QString::number(currenTime.toTime_t()) +
-          QString(MODEL_EXTENSION);
+          QString(modelExtension);
   sendMessage("current model path: " + currentModelPath);
 
   sendMessage("loading training data...");
-  LoadingParams params(FACE_DATA_DIRECTORY, 0.9, classifier::LBP);
+  // prepare loading parameters
+  LoadingParams params(faceImageDirectory.toStdString(),
+                       loadingPercent,
+                       featureType);
+  // load the images into matrix
   loadTrainingData(params, trainingData, trainingLabel, names);
   sendMessage("training data loaded");
-  cout << trainingData;
 
+  // training
   if (faceClassifier == nullptr) {
     sendMessage("creating trainer...");
     faceClassifier = new FaceClassifier(10, 1, 0, 1, 0, 0,
-                                        classifier::C_SVC,
-                                        classifier::RBF,
+                                        FaceClassifier::C_SVC,
+                                        FaceClassifier::RBF,
                                         trainingData,
                                         trainingLabel);
     sendMessage("training started...");
@@ -39,6 +58,7 @@ void TrainingTask::run() {
     faceClassifier->saveModel(currentModelPath.toStdString());
   }
 
+  // prepare the data as QMap<int, QString>
   QMap<int, QString> nameMap;
   for (auto it = names.begin() ; it != names.end() ; it ++) {
     nameMap.insert(it->first, QString(it->second.c_str()));
