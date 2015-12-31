@@ -55,7 +55,7 @@
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
-        <layout class="QVBoxLayout" name="verticalLayout">
+        <layout class="QVBoxLayout" name="controlLayout">
          <item>
           <layout class="QVBoxLayout" name="takePictureLayout">
            <item>
@@ -80,6 +80,19 @@
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QPushButton" name="resumeButton">
+             <property name="font">
+              <font>
+               <family>Sans</family>
+               <pointsize>14</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Resume</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
          <item>
@@ -98,7 +111,7 @@
             </widget>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <layout class="QHBoxLayout" name="buttonLayout">
              <item>
               <widget class="QPushButton" name="yesButton">
                <property name="font">
