@@ -8,13 +8,17 @@ MainWindow::MainWindow(QWidget *parent) :
             mainDisplay(new ImageViewer()),
             faceDisplay(new ImageViewer()),
             faceClassifier(new FaceClassifier()) {
+  // main ui setup
   ui->setupUi(this);
 
+  // add display widget
   ui->mainWidget->layout()->addWidget(mainDisplay);
   ui->faceLayout->addWidget(faceDisplay);
 
+  // start timer to update frame
   timer->start(CAMEAR_INTERVAL);
   connect(timer, SIGNAL(timeout()), this, SLOT(setImage()));
+  // button event
   connect(ui->trainButton, SIGNAL(pressed()), SLOT(train()));
   connect(ui->selectButton, SIGNAL(pressed()), this, SLOT(takePicture()));
   connect(ui->resumeButton, SIGNAL(pressed()), this, SLOT(resume()));
@@ -26,6 +30,15 @@ MainWindow::MainWindow(QWidget *parent) :
   for (int i = 0 ; i < dirList.count() ; i ++) {
     if (dirList[i] != "." && dirList[i] != "..")
       ui->selectComboBox->addItem(dirList[i]);
+  }
+
+  // read name mapping xml
+  setLog("loading old name mappings...");
+  readMap();
+  QMapIterator<int, QString> it(names);
+  while (it.hasNext()) {
+    it.next();
+    setLog(QString::number(it.key()) + ": " + it.value());
   }
 
   // register type for signal and slot
@@ -106,9 +119,10 @@ void MainWindow::trainingComplete(QString modelPath,
     setLog("new model copied");
 
     // load the new model
-    faceClassifier->load(target);
+    faceClassifier->load(target.toStdString());
     setLog("new model loaded");
 
+    // output new name map
     this->names = names;
     QMapIterator<int, QString> it(names);
     while (it.hasNext()) {
@@ -117,6 +131,9 @@ void MainWindow::trainingComplete(QString modelPath,
       QString name = it.value();
       setLog(name + ": " + index);
     }
+    // write to file
+    this->writeMap();
+    setLog("new name mapping written");
   }
 }
 
@@ -152,4 +169,75 @@ void MainWindow::takePicture() {
 
 void MainWindow::resume() {
   pictureTaken = false;
+}
+
+void MainWindow::writeMap() {
+  // open output file
+  QFile nameMapFile(MAPPING_FILE);
+
+  if (nameMapFile.open(QIODevice::WriteOnly)) {
+    QXmlStreamWriter out(&nameMapFile);
+    out.setAutoFormatting(true);
+    out.setAutoFormattingIndent(2);
+    out.writeStartDocument();
+    out.writeStartElement(LIST);
+
+    QMapIterator<int, QString> it(names);
+    while (it.hasNext()) {
+      it.next();
+      out.writeStartElement(ENTRY);
+      out.writeTextElement(QString(KEY), QString::number(it.key()));
+      out.writeTextElement(QString(VALUE), it.value());
+      out.writeEndElement();
+    }
+    out.writeEndElement();
+    out.writeEndDocument();
+  }
+}
+
+void MainWindow::readMap() {
+  // clear the old map
+  names = QMap<int, QString>();
+
+  QFile nameMapFile(MAPPING_FILE);
+  if (nameMapFile.open(QIODevice::ReadOnly)) {
+    QXmlStreamReader in;
+    in.setDevice(&nameMapFile);
+    in.readNext();
+
+    while (!in.atEnd()) {
+      if (in.isStartElement() && in.name() == QString(LIST)) {
+        in.readNext();
+        while (!in.atEnd()) {
+          in.readNext();
+          if (in.isStartElement() && in.name() == QString(ENTRY)) {
+            in.readNext();
+            QString key, value;
+            while (!in.atEnd()) {
+              in.readNext();
+              if (in.isStartElement() && in.name() == QString(KEY)) {
+                key = in.readElementText();
+                in.readNext();
+              } else if (in.isStartElement() && in.name() == QString(VALUE)) {
+                value = in.readElementText();
+                in.readNext();
+              } else if (in.isEndElement()) {
+                in.readNext();
+                break;
+              } else {
+                in.readNext();
+              }
+            }
+            names.insert(key.toInt(), value);
+          } else if (in.isEndElement()) {
+            in.readNext();
+            break;
+          }
+        }
+      }
+      in.readNext();
+    }
+  } else {
+    setLog("no name mapping xml file found");
+  }
 }
