@@ -14,6 +14,7 @@
 using classifier::LoadingParams;
 using classifier::loadTrainingData;
 using classifier::FaceClassifier;
+using classifier::FeatureType;
 using cv::Mat;
 using std::map;
 using std::string;
@@ -21,20 +22,24 @@ using std::string;
 class TrainingTask : public QThread {
   Q_OBJECT
  public:
-  TrainingTask() {}
+  TrainingTask(QString _faceImageDirectory,
+               QString _modelBaseName,
+               QString _modelExtension,
+               double _loadingPercent,
+               FeatureType _featureType);
   virtual ~TrainingTask();
   virtual void run();
  signals:
   void sendMessage(QString message);
   void complete(QString modelPath, QMap<int, QString> names);
  private:
+  QString faceImageDirectory, modelBaseName, modelExtension;
   QString currentModelPath;
+  double loadingPercent;
+  FeatureType featureType;
   map<int, string> names;
   FaceClassifier* faceClassifier = nullptr;
   Mat trainingData, trainingLabel;
-  const char* FACE_DATA_DIRECTORY = "faces";
-  const char* MODEL_BASE_NAME = "facemodel";
-  const char* MODEL_EXTENSION = ".xml";
 };
 
 #endif // TRAININGTASK_H
