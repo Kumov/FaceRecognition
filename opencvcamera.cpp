@@ -58,3 +58,7 @@ QImage OpenCVCamera::getCurrentFace() {
   }
   return faceImage;
 }
+
+void OpenCVCamera::getCurrentFaceMat(Mat& face) {
+  cvtColor(this->face, face, CV_RGB2BGR);
+}
