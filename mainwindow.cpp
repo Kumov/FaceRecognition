@@ -22,8 +22,11 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(ui->trainButton, SIGNAL(pressed()), SLOT(train()));
   connect(ui->selectButton, SIGNAL(pressed()), this, SLOT(takePicture()));
   connect(ui->resumeButton, SIGNAL(pressed()), this, SLOT(resume()));
+  connect(ui->yesButton, SIGNAL(pressed()), this, SLOT(resume()));
+  connect(ui->noButton, SIGNAL(pressed()), this, SLOT(addTrainingData()));
 
   // scan image directory for people list
+  ui->selectComboBox->addItem(QString(SELECT));
   QDir imageRoot(FACE_IMAGE_DIR);
   imageRoot.setFilter(QDir::Dirs);
   QStringList dirList = imageRoot.entryList();
@@ -164,11 +167,11 @@ void MainWindow::takePicture() {
       }
     }
   }
-
 }
 
 void MainWindow::resume() {
   pictureTaken = false;
+  setLog("continue to capture camera image");
 }
 
 void MainWindow::writeMap() {
@@ -239,5 +242,72 @@ void MainWindow::readMap() {
     }
   } else {
     setLog("no name mapping xml file found");
+  }
+}
+
+void MainWindow::addTrainingData() {
+  // check if user already took the picture where the capturing stops
+  if (pictureTaken) {
+    // check if user select the target user to add sample
+    QString user = ui->selectComboBox->currentText();
+    if (user != QString(SELECT)) {
+      size_t index = 0;
+      if (user != QString(BG_IMAGE_DIR)) {
+        // if target is a user image
+        // calculate the path
+        QString filePath = QString(FACE_IMAGE_DIR) + QDir::separator() +
+            user + QDir::separator() + QString(POS_DIR) +
+            QDir::separator() + user + QString::number(index) +
+            QString(IMAGE_OUTPUT);
+        QFile* newImageData = new QFile(filePath);
+        while (newImageData->exists()) {
+          index ++;
+          filePath = QString(FACE_IMAGE_DIR) + QDir::separator() +
+              user + QDir::separator() + QString(POS_DIR) +
+              QDir::separator() + user + QString::number(index) +
+              QString(IMAGE_OUTPUT);
+          delete newImageData;
+          newImageData = new QFile(filePath);
+        }
+        delete newImageData;
+
+        // writing image
+        cv::imwrite(filePath.toStdString(), face);
+        setLog("image written to " + filePath);
+      } else {
+        // if target is a background image
+        // calculate path for bg files
+        QString bg = user;
+        QString filePath = QString(FACE_IMAGE_DIR) + QDir::separator() +
+            bg + QDir::separator() + bg +
+            QString::number(index) + QString(IMAGE_OUTPUT);
+        QFile* newImageData = new QFile(filePath);
+        while (newImageData->exists()) {
+          index ++;
+          filePath = QString(FACE_IMAGE_DIR) + QDir::separator() +
+              bg + QDir::separator() + bg +
+              QString::number(index) + QString(IMAGE_OUTPUT);
+          delete newImageData;
+          newImageData = new QFile(filePath);
+        }
+        delete newImageData;
+
+        // write the image
+        imwrite(filePath.toStdString(), face);
+        setLog("image written to " + filePath);
+      }
+    } else {
+      QMessageBox::warning(this, "Warning",
+                           "You need to select who the target image is for",
+                           QMessageBox::Ok, QMessageBox::NoButton);
+      setLog("warning!! you need to select who the target image is for");
+    }
+    // resume the camera capture
+    resume();
+  } else {
+    QMessageBox::information(this, "Take Picture",
+                         "You need to take a picture first",
+                         QMessageBox::Ok, QMessageBox::NoButton);
+    setLog("warning!! you need to select who the target image is for");
   }
 }
