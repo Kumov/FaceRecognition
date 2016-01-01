@@ -10,6 +10,7 @@
 #include <QFile>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
+#include <QMessageBox>
 
 #include "opencvcamera.h"
 #include "imageviewer.h"
@@ -19,17 +20,23 @@
 #define FACE_IMAGE_ROOT_DIR "faces"
 #define FACE_MODEL_BASE_NAME "facemodel"
 #define FACE_MODEL_EXTENSION ".xml"
+#define BACKGROUND_IMAGE_DIR "bg"
+#define POSITIVE_DIRECTORY "pos"
+#define NEGATIVE_DIRECTORY "neg"
+#define IMAGE_OUTPUT_EXTENSION ".jpg"
 #define NAME_MAP "names.xml"
 #define LIST_NAME "list"
 #define ENTRY_NAME "entry"
 #define KEY_NAME "key"
 #define VALUE_NAME "value"
+#define SELECT_TEXT "Select one..."
 #define INTERVAL 33
 #define PERCENT 0.9
 
 using classifier::FaceClassifier;
 using classifier::FeatureType;
 using cv::Mat;
+using cv::imwrite;
 
 namespace Ui {
 class MainWindow;
@@ -50,6 +57,7 @@ class MainWindow : public QMainWindow {
   void takePicture();
   void resume();
   void setLog(QString log);
+  void addTrainingData();
  private:
   Ui::MainWindow *ui = nullptr;
   OpenCVCamera camera;
@@ -64,11 +72,16 @@ class MainWindow : public QMainWindow {
   const char* FACE_IMAGE_DIR = FACE_IMAGE_ROOT_DIR;
   const char* MODEL_BASE_NAME = FACE_MODEL_BASE_NAME;
   const char* MODEL_EXTENSION = FACE_MODEL_EXTENSION;
+  const char* BG_IMAGE_DIR = BACKGROUND_IMAGE_DIR;
+  const char* POS_DIR = POSITIVE_DIRECTORY;
+  const char* NEG_DIR = NEGATIVE_DIRECTORY;
+  const char* IMAGE_OUTPUT = IMAGE_OUTPUT_EXTENSION;
   const char* MAPPING_FILE = NAME_MAP;
   const char* LIST = LIST_NAME;
   const char* ENTRY = ENTRY_NAME;
   const char* KEY = KEY_NAME;
   const char* VALUE = VALUE_NAME;
+  const char* SELECT = SELECT_TEXT;
   const int CAMEAR_INTERVAL = INTERVAL;
   const double LOADING_PERCENT = PERCENT;
   const FeatureType FEATURE_TYPE = classifier::LBP;
