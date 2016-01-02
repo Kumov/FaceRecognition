@@ -49,7 +49,7 @@ void loadTrainingData(LoadingParams params,
     names.insert(pair<int,string>((i-userFiles.size()/2),
                                   userFiles[i]));
   }
-#ifdef QT_DEBUG
+#ifdef DEBUG
   cout << "trainingSize: " << trainingSize << endl;
   cout << "testingSize: " << testingSize << endl;
 #endif
@@ -89,7 +89,7 @@ void loadTrainingData(LoadingParams params,
     }
     scanDir(path, imagePaths, exclusion);
 
-#ifdef QT_DEBUG
+#ifdef DEBUG
     cout << "current training size: " << trainingPos << endl;
 #endif
 
@@ -156,7 +156,7 @@ void loadTrainingData(LoadingParams params,
   }
 
   // debug info
-#ifdef QT_DEBUG
+#ifdef DEBUG
 //  cout << tnd << endl;
 //  cout << ttd << endl;
   cout << tnl << endl;
@@ -187,11 +187,10 @@ void loadTrainingData(LoadingParams params,
     trainingLabel.ptr<int>()[i + trainingSize] = ttl.ptr<int>()[i];
   }
 
-#ifdef QT_DEBUG
+#ifdef DEBUG
 //  cout << trainingData << endl;
   cout << trainingLabel << endl;
 #endif
-  sendMessage(string("test accuracy: ") + std::to_string(accuracy));
 }
 
 FaceClassifier::FaceClassifier() {
@@ -242,10 +241,12 @@ void FaceClassifier::setupSVM() {
       this->svm->setType(SVM::NU_SVR);
       break;
     default:
-#ifdef QT_DEBUG
+#ifdef DEBUG
       fprintf(stderr, "No such type of SVM implemented\n");
       fprintf(stderr, "default to C_SVC\n");
 #endif
+      sendMessage("Warning!! No such type of SVM implmented");
+      sendMessage("Warning!! default to C_SVC");
       this->svm->setType(cv::ml::SVM::C_SVC);
       break;
   }
@@ -264,10 +265,12 @@ void FaceClassifier::setupSVM() {
       this->svm->setKernel(SVM::SIGMOID);
       break;
     default:
-#ifdef QT_DEBUG
+#ifdef DEBUG
       fprintf(stderr, "No such kernel type of SVM implemented\n");
       fprintf(stderr, "default to RBF\n");
 #endif
+      sendMessage("Warning!! No such kernel type of SVM implmented");
+      sendMessage("Warning!! default to RBF");
 
       this->svm->setKernel(SVM::RBF);
       break;
@@ -359,17 +362,21 @@ void FaceClassifier::train() {
     // cache up original parameters
     this->gammaCache = this->gamma;
 
+    sendMessage(QString("increasing training parameter"));
     double accuracy = 0;
     for (unsigned int i = 0 ; i < MAX_ITERATION ; i ++) {
       this->svm->train(td);
       accuracy = this->testAccuracy();
 
-#ifdef QT_DEBUG
+#ifdef DEBUG
       fprintf(stdout, "test accuracy: %lf\n", accuracy);
 #endif
-      sendMessage(string("test accuracy: ") + std::to_string(accuracy));
 
-      if (accuracy >= TEST_ACCURACY_REQUIREMENT) return;
+      if (accuracy >= TEST_ACCURACY_REQUIREMENT) {
+        sendMessage(QString("test accuracy: ") + QString::number(accuracy) +
+                    QString(" | requirement reach | stop training ..."));
+        return;
+      }
 
       double l = 0;
       switch (this->kernelType) {
@@ -392,18 +399,26 @@ void FaceClassifier::train() {
           break;
       }
       this->setupSVM();
+      sendMessage(QString("test accuracy: ") + QString::number(accuracy) +
+                  QString("gamma = ") + QString::number(this->gamma) +
+                  QString(" | continue to update..."));
     }
 
+    sendMessage(QString("decreasing training parameter"));
     this->gamma = this->gammaCache;
     for (unsigned int i = 0 ; i < MAX_ITERATION ; i ++) {
       this->svm->train(td);
       accuracy = this->testAccuracy();
-#ifdef QT_DEBUG
+
+#ifdef DEBUG
       fprintf(stdout, "test accuracy: %lf\n", accuracy);
 #endif
 
-      if (accuracy >= TEST_ACCURACY_REQUIREMENT)
+      if (accuracy >= TEST_ACCURACY_REQUIREMENT) {
+        sendMessage(QString("test accuracy: ") + QString::number(accuracy) +
+                    QString(" | requirement reach | stop training ..."));
         return;
+      }
 
       double l = 0;
       switch (this->kernelType) {
@@ -426,15 +441,19 @@ void FaceClassifier::train() {
           break;
       }
       this->setupSVM();
+      sendMessage(QString("test accuracy: ") + QString::number(accuracy) +
+                  QString("gamma = ") + QString::number(this->gamma) +
+                  QString(" | continue to update..."));
     }
 
     this->gamma = this->gammaCache;
     this->setupSVM();
     this->svm->train(td);
   } else {
-#ifdef QT_DEBUG
+#ifdef DEBUG
     fprintf(stderr, "No training data and label prepared\n");
 #endif
+    sendMessage("no training data and label prepared");
   }
 }
 
@@ -467,9 +486,10 @@ void FaceClassifier::train(Mat& data, Mat& label) {
       testingLabel.ptr<int>()[i] = label.ptr<int>()[loffset + i];
     }
   } else {
-#ifdef QT_DEBUG
+#ifdef DEBUG
     fprintf(stderr, "input data not suitable for training\n");
 #endif
+    sendMessage("input data not suitable for training");
   }
   this->train();
 }
@@ -480,15 +500,17 @@ int FaceClassifier::predict(cv::Mat& sample) {
         sample.type() == trainingData.type()) {
       return this->svm->predict(sample);
     } else {
-#ifdef QT_DEBUG
+#ifdef DEBUG
       fprintf(stderr, "SVM not trained\n");
 #endif
+      sendMessage("SVM not trained");
       return INT_MAX;
     }
   } else {
-#ifdef QT_DEBUG
+#ifdef DEBUG
     fprintf(stderr, "SVM not trained\n");
 #endif
+    sendMessage("SVM not trained");
     return INT_MAX;
   }
 }
@@ -515,9 +537,10 @@ int FaceClassifier::predictImageSample(cv::Mat& imageSample) {
   if (this->svm->isTrained()) {
       return this->svm->predict(sample);
   } else {
-#ifdef QT_DEBUG
+#ifdef DEBUG
     fprintf(stderr, "SVM not trained\n");
 #endif
+    sendMessage("SVM not trained");
     return INT_MAX;
   }
 }
@@ -538,9 +561,10 @@ double FaceClassifier::testAccuracy() {
     }
     return (double) correct / testingLabel.rows;
   } else {
-#ifdef QT_DEBUG
+#ifdef DEBUG
     fprintf(stderr, "SVM not trained\n");
 #endif
+    sendMessage("SVM not trained");
     return 0;
   }
 }
