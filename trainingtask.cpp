@@ -52,6 +52,9 @@ void TrainingTask::run() {
                                         FaceClassifier::RBF,
                                         trainingData,
                                         trainingLabel);
+    // connect log message from training task
+    connect(faceClassifier, SIGNAL(sendMessage(QString)),
+            this, SLOT(captureMessage(QString)));
     sendMessage("training started...");
     faceClassifier->train();
     sendMessage("saving model...");
@@ -64,4 +67,8 @@ void TrainingTask::run() {
     nameMap.insert(it->first, QString(it->second.c_str()));
   }
   complete(currentModelPath, nameMap);
+}
+
+void TrainingTask::captureMessage(QString message) {
+  sendMessage(message);
 }
