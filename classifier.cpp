@@ -400,7 +400,7 @@ void FaceClassifier::train() {
       }
       this->setupSVM();
       sendMessage(QString("test accuracy: ") + QString::number(accuracy) +
-                  QString("gamma = ") + QString::number(this->gamma) +
+                  QString(" | gamma = ") + QString::number(this->gamma) +
                   QString(" | continue to update..."));
     }
 
@@ -442,7 +442,7 @@ void FaceClassifier::train() {
       }
       this->setupSVM();
       sendMessage(QString("test accuracy: ") + QString::number(accuracy) +
-                  QString("gamma = ") + QString::number(this->gamma) +
+                  QString(" | gamma = ") + QString::number(this->gamma) +
                   QString(" | continue to update..."));
     }
 
