@@ -191,6 +191,7 @@ void loadTrainingData(LoadingParams params,
 //  cout << trainingData << endl;
   cout << trainingLabel << endl;
 #endif
+  sendMessage(string("test accuracy: ") + std::to_string(accuracy));
 }
 
 FaceClassifier::FaceClassifier() {
@@ -267,6 +268,7 @@ void FaceClassifier::setupSVM() {
       fprintf(stderr, "No such kernel type of SVM implemented\n");
       fprintf(stderr, "default to RBF\n");
 #endif
+
       this->svm->setKernel(SVM::RBF);
       break;
   }
@@ -365,6 +367,7 @@ void FaceClassifier::train() {
 #ifdef QT_DEBUG
       fprintf(stdout, "test accuracy: %lf\n", accuracy);
 #endif
+      sendMessage(string("test accuracy: ") + std::to_string(accuracy));
 
       if (accuracy >= TEST_ACCURACY_REQUIREMENT) return;
 
