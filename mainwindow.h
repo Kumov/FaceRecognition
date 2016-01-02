@@ -49,6 +49,7 @@ class MainWindow : public QMainWindow {
   ~MainWindow();
   void writeMap();
   void readMap();
+
  public slots:
   void setImage();
   void train();
@@ -58,6 +59,7 @@ class MainWindow : public QMainWindow {
   void resume();
   void setLog(QString log);
   void addTrainingData();
+
  private:
   Ui::MainWindow *ui = nullptr;
   OpenCVCamera camera;
