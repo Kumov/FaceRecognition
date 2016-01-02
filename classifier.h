@@ -138,7 +138,7 @@ class FaceClassifier : public QObject {
   bool isLoaded();
 
  signals:
-  void sendMessage(string message);
+  void sendMessage(QString message);
 
  protected:
   void setupSVM();
