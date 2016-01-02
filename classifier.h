@@ -2,6 +2,7 @@
 #define CLASSIFIER_H
 
 #include <QtCore>
+#include <QObject>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -61,8 +62,9 @@ void loadTrainingData(LoadingParams params,
 
 struct FaceClassifierParams;
 
-class FaceClassifier {
-public:
+class FaceClassifier : public QObject {
+  Q_OBJECT
+ public:
   // constants
   enum FaceClassifierType {
     C_SVC,
@@ -124,6 +126,7 @@ public:
                  FaceClassifierType type,
                  FaceClassifierKernelType kernelType,
                  Mat& data, Mat& label);
+  virtual ~FaceClassifier() {}
   void saveModel();
   void saveModel(string modelPath);
   void train();
@@ -133,9 +136,14 @@ public:
   void load(string modelPath);
   double testAccuracy();
   bool isLoaded();
-protected:
+
+ signals:
+  void sendMessage(string message);
+
+ protected:
   void setupSVM();
-private:
+
+ private:
   Ptr<SVM> svm;
   FaceClassifierType type;
   FaceClassifierKernelType kernelType;
@@ -182,7 +190,6 @@ typedef struct FaceClassifierParams {
     kernelType = FaceClassifier::RBF;
   }
 } FaceClassifierParams;
-
 
 } /* classifier */
 
