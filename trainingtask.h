@@ -29,9 +29,14 @@ class TrainingTask : public QThread {
                FeatureType _featureType);
   virtual ~TrainingTask();
   virtual void run();
+
+ public slots:
+  void captureMessage(QString message);
+
  signals:
   void sendMessage(QString message);
   void complete(QString modelPath, QMap<int, QString> names);
+
  private:
   QString faceImageDirectory, modelBaseName, modelExtension;
   QString currentModelPath;
