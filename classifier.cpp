@@ -13,7 +13,261 @@
 #define POS_DIR "/pos"
 #define NEG_DIR "/neg"
 
+#undef MIN
+#define MIN(n1, n2) (n1 < n2 ? n1 : n2)
+
 namespace classifier {
+
+TrainingDataLoader::TrainingDataLoader(const LoadingParams params) {
+  this->directory = params.directory;
+  this->percent = params.percentForTraining;
+  this->featureType = params.featureType;
+}
+
+void TrainingDataLoader::load(Mat& trainingData,
+                              Mat& trainingLabel,
+                              map<int,string>& names) {
+  size_t trainingSize = 0, testingSize = 0;
+  vector<string> userFiles, exclusion;
+  exclusion.push_back(".");
+  exclusion.push_back("..");
+
+  scanDir(directory, userFiles, exclusion);
+  for (uint32_t i = 0 ; i < userFiles.size() ; i ++) {
+    string path;
+    vector<string> imagePaths;
+    if (strcmp(userFiles[i].c_str(), BG_DIR) == 0) {
+      // background images
+      path = directory + string(SEPARATOR) + userFiles[i];
+    } else {
+      // users images
+      path = directory + string(SEPARATOR) + userFiles[i] +
+          string(POS_DIR);
+    }
+    scanDir(path, imagePaths, exclusion);
+    trainingSize += (size_t) (imagePaths.size() * percent);
+    testingSize += (size_t) (imagePaths.size() * (1-percent));
+
+    // mappings
+    names.insert(pair<int,string>((i-userFiles.size()/2),
+                                  userFiles[i]));
+  }
+
+#ifdef DEBUG
+  cout << "trainingSize: " << trainingSize << endl;
+  cout << "testingSize: " << testingSize << endl;
+#endif
+  sendMessage(QString("training size: ") +
+              QString::number(trainingSize));
+
+  // prepare the matrix for training
+  uint32_t featureLength = 0;
+  switch (featureType) {
+    case LBP:
+      featureLength = 256;
+      break;
+    case LTP:
+      // TODO
+      featureLength = 256;
+      break;
+    case CSLTP:
+      // TODO
+      featureLength = 81;
+      break;
+  }
+
+  cout << "feature length: " << featureLength << endl;
+  // data
+  Mat tnd = Mat::zeros(trainingSize, featureLength, CV_32FC1);
+  Mat ttd = Mat::zeros(testingSize, featureLength, CV_32FC1);
+  // labels
+  Mat tnl = Mat::zeros(trainingSize, 1, CV_32SC1);
+  Mat ttl = Mat::zeros(testingSize, 1, CV_32SC1);
+  Mat image, X = Mat::zeros(1, featureLength, CV_32SC1);
+
+  // extracting lbp/ctlp data for individual samples
+  size_t trainingPos = 0, testingPos = 0;
+  for (uint32_t i = 0 ; i < userFiles.size() ; i ++) {
+    string path;
+    vector<string> imagePaths;
+    if (strcmp(userFiles[i].c_str(), BG_DIR) == 0) {
+      // background images
+      path = directory + string(SEPARATOR) + userFiles[i];
+    } else {
+      // users images
+      path = directory + string(SEPARATOR) + userFiles[i] +
+          string(POS_DIR);
+    }
+    scanDir(path, imagePaths, exclusion);
+
+#ifdef DEBUG
+    cout << "current training size: " << trainingPos << endl;
+#endif
+    sendMessage(QString("current training size: ") +
+                QString::number(trainingPos));
+
+    // read individual images for training
+    size_t trainingImageCount = static_cast<size_t>(imagePaths.size() * percent);
+    for (uint32_t j = 0 ; j < trainingImageCount ; j ++) {
+      QString processingType;
+      string briefMat;
+      string imagePath = path + string(SEPARATOR) + imagePaths[j];
+      image = imread(imagePath);
+
+      X = Mat::zeros(1, featureLength, CV_32SC1);
+      if (image.data) {
+        // compute feature
+        switch (featureType) {
+          case LBP:
+            process::computeLBP(image, X);
+            processingType = "LBP";
+            break;
+          case LTP:
+            // TODO
+            processingType = "LTP";
+            break;
+          case CSLTP:
+            // TODO
+            processingType = "CSLTP";
+            break;
+        }
+
+#ifdef DEBUG
+      cout << "tnd.rows = " << tnd.rows << " j = " << j << endl;
+#endif
+
+        TrainingDataLoader::brief(image, briefMat);
+        sendMessage(QString("Training: loading image from ") +
+                    QString(imagePath.c_str()) +
+                    QString(" | processing image with ") +
+                    processingType);
+        sendMessage(QString("Training sample: ") +
+                    QString(briefMat.c_str()));
+
+        // copy the x sample to tnd
+        for (uint32_t k = 0 ; k < featureLength ; k ++) {
+          tnd.ptr<float>()[(j + trainingPos) * tnd.cols + k] =
+              static_cast<float>(X.ptr<int>()[k]);
+        }
+
+        // set label for this sample
+        tnl.ptr<int>()[j + trainingPos] = i - userFiles.size() / 2;
+      }
+    }
+    trainingPos += trainingImageCount;
+
+    // read individual images for testing
+    size_t testingImageCount = static_cast<size_t>(imagePaths.size() * (1-percent));
+    for (uint32_t j = 0 ; j < testingImageCount ; j ++) {
+      QString processingType;
+      string imagePath = path + string(SEPARATOR) +
+          imagePaths[j + (size_t)(imagePaths.size() * percent)];
+      image = imread(imagePath);
+      X = Mat::zeros(1, featureLength, CV_32SC1);
+      if (image.data) {
+        // compute feature
+        switch (featureType) {
+          case LBP:
+            process::computeLBP(image, X);
+            processingType = "LBP";
+            break;
+          case LTP:
+            // TODO
+            processingType = "LTP";
+            break;
+          case CSLTP:
+            // TODO
+            processingType = "CSLTP";
+            break;
+        }
+
+        sendMessage(QString("Testing: loading image from ") +
+                    QString(imagePath.c_str()) +
+                    QString(" | processing image with ") +
+                    processingType);
+
+        // copy the x sample to tnd
+        for (uint32_t k = 0 ; k < featureLength ; k ++) {
+          ttd.ptr<float>()[(j + testingPos) * ttd.cols + k] =
+              static_cast<float>(X.ptr<int>()[k]);
+        }
+        // set label for this sample
+        ttl.ptr<int>()[j + testingPos] = i - userFiles.size() / 2;
+      }
+    }
+    testingPos += testingImageCount;
+  }
+
+  // debug info
+#ifdef DEBUG
+//  cout << tnd << endl;
+//  cout << ttd << endl;
+  cout << tnl << endl;
+//  cout << ttl << endl;
+#endif
+
+  // put all data/lables into trainingData/Labels
+  trainingData = Mat::zeros(trainingSize + testingSize, featureLength, CV_32FC1);
+  trainingLabel = Mat::zeros(trainingSize + testingSize, 1, CV_32SC1);
+
+  const uint32_t cols = trainingData.cols;
+  for (uint32_t i = 0 ; i < trainingSize ; i ++) {
+    // training data
+    float* rowData = tnd.ptr<float>() + i * tnd.cols;
+    for (uint32_t j = 0 ; j < cols ; j ++) {
+      trainingData.ptr<float>()[i * cols + j] = rowData[j];
+    }
+    // training label
+    trainingLabel.ptr<int>()[i] = tnl.ptr<int>()[i];
+  }
+  for (uint32_t i = 0 ; i < testingSize ; i ++) {
+    // testing data
+    float* rowData = ttd.ptr<float>() + i * ttd.cols;
+    for (uint32_t j = 0 ; j < cols ; j ++) {
+      trainingData.ptr<float>()[(i + trainingSize) * cols + j] = rowData[j];
+    }
+    // testing label
+    trainingLabel.ptr<int>()[i + trainingSize] = ttl.ptr<int>()[i];
+  }
+
+#ifdef DEBUG
+//  cout << trainingData << endl;
+  cout << trainingLabel << endl;
+#endif
+}
+
+void TrainingDataLoader::brief(const Mat& mat, string& str) {
+  const int maxRows = 10;
+  const int maxCols = 20;
+  const int rowLimit = MIN(maxRows, mat.rows);
+  const int colLimit = MIN(maxCols, mat.cols);
+
+  str = "[";
+  if (rowLimit > 0) {
+    for (int i = 0 ; i < colLimit ; i ++) {
+      switch (mat.type()) {
+        case CV_8UC3:
+          str += std::to_string(
+                mat.ptr<uchar>()[i * mat.channels()]);
+          break;
+        case CV_8UC1:
+          str += std::to_string(
+                mat.ptr<uchar>()[i]);
+          break;
+        case CV_32SC1:
+          str += std::to_string(
+                mat.ptr<int>()[i]);
+          break;
+        case CV_32FC1:
+          str += std::to_string(
+                mat.ptr<float>()[i]);
+          break;
+      }
+      if (i != colLimit - 1) str += ",";
+    }
+  }
+  str += "]";
+}
 
 void loadTrainingData(LoadingParams params,
                       Mat& trainingData,
@@ -49,6 +303,7 @@ void loadTrainingData(LoadingParams params,
     names.insert(pair<int,string>((i-userFiles.size()/2),
                                   userFiles[i]));
   }
+
 #ifdef DEBUG
   cout << "trainingSize: " << trainingSize << endl;
   cout << "testingSize: " << testingSize << endl;
@@ -60,8 +315,13 @@ void loadTrainingData(LoadingParams params,
     case LBP:
       featureLength = 256;
       break;
-    case CTLP:
+    case LTP:
+      // TODO
       featureLength = 256;
+      break;
+    case CSLTP:
+      // TODO
+      featureLength = 81;
       break;
   }
 
@@ -107,9 +367,11 @@ void loadTrainingData(LoadingParams params,
           case LBP:
             process::computeLBP(image, X);
             break;
-          case CTLP:
+          case LTP:
             // TODO
-            // implement CTLP for processing module
+            break;
+          case CSLTP:
+            // TODO
             break;
         }
         // copy the x sample to tnd
@@ -137,9 +399,11 @@ void loadTrainingData(LoadingParams params,
           case LBP:
             process::computeLBP(image, X);
             break;
-          case CTLP:
+          case LTP:
             // TODO
-            // implement CTLP for processing module
+            break;
+          case CSLTP:
+            // TODO
             break;
         }
         // copy the x sample to tnd
@@ -523,8 +787,11 @@ int FaceClassifier::predictImageSample(cv::Mat& imageSample) {
     case LBP:
       featureLength = 256;
       break;
-    case CTLP:
-      featureLength = 81;
+    case LTP:
+      // TODO
+      break;
+    case CSLTP:
+      // TODO
       break;
   }
   lbp = Mat::zeros(1, featureLength, CV_32SC1);
@@ -586,3 +853,5 @@ bool FaceClassifier::isLoaded() {
 #undef DEFAULT_P
 #undef POS_DIR
 #undef NEG_DIR
+
+#undef MIN
