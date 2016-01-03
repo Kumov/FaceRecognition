@@ -242,29 +242,31 @@ void TrainingDataLoader::brief(const Mat& mat, string& str) {
 
   str = "[";
   if (rowLimit > 0) {
-    for (int i = 0 ; i < colLimit ; i ++) {
-      switch (mat.type()) {
-        case CV_8UC3:
-          str += std::to_string(
-                mat.ptr<uchar>()[i * mat.channels()]);
-          break;
-        case CV_8UC1:
-          str += std::to_string(
-                mat.ptr<uchar>()[i]);
-          break;
-        case CV_32SC1:
-          str += std::to_string(
-                mat.ptr<int>()[i]);
-          break;
-        case CV_32FC1:
-          str += std::to_string(
-                mat.ptr<float>()[i]);
-          break;
+    for (int i = 0 ; i < rowLimit ; i ++) {
+      for (int j = 0 ; j < colLimit ; j ++) {
+        switch (mat.type()) {
+          case CV_8UC3:
+            str += std::to_string(
+                  mat.ptr<uchar>()[i * mat.cols + j * mat.channels()]);
+            break;
+          case CV_8UC1:
+            str += std::to_string(
+                  mat.ptr<uchar>()[i * mat.cols + j]);
+            break;
+          case CV_32SC1:
+            str += std::to_string(
+                  mat.ptr<int>()[i * mat.cols + j]);
+            break;
+          case CV_32FC1:
+            str += std::to_string(
+                  mat.ptr<float>()[i * mat.cols + j]);
+            break;
+        }
+        if (j != colLimit - 1) str += ",";
       }
-      if (i != colLimit - 1) str += ",";
     }
   }
-  str += "]";
+  str += ", ...]";
 }
 
 void loadTrainingData(LoadingParams params,
