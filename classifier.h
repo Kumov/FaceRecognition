@@ -72,9 +72,9 @@ typedef struct LoadingParams {
   }
 
   string directory;
-  string bgDir = BG_DIR;
-  string posDir = POS_DIR;
-  string negDir = NEG_DIR;
+  string bgDir = DEFAULT_BG_DIR;
+  string posDir = DEFAULT_POS_DIR;
+  string negDir = DEFAULT_NEG_DIR;
   double percentForTraining;
   FeatureType featureType;
 } LoadingParams;
