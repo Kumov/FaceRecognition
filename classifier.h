@@ -34,7 +34,9 @@ using cv::ml::StatModel;
 namespace classifier {
 // supported feature type
 typedef enum {
-  LBP, CTLP
+  LBP,      // local binary pattern
+  LTP,      // local ternary pattern
+  CSLTP     // central symmetric local ternary pattern
 } FeatureType;
 
 // params for loading
@@ -49,10 +51,29 @@ typedef struct LoadingParams {
     }
     featureType = type;
   }
+
   string directory;
   double percentForTraining;
   FeatureType featureType;
 } LoadingParams;
+
+class TrainingDataLoader : public QObject {
+  Q_OBJECT
+ public:
+  TrainingDataLoader(const LoadingParams params);
+  virtual ~TrainingDataLoader() {}
+  void load(Mat& trainingData, Mat& trainingLabel,
+       map<int, string>& names);
+  static void brief(const Mat& mat, string& str);
+
+ signals:
+  void sendMessage(QString message);
+
+ private:
+  string directory;
+  double percent;
+  FeatureType featureType;
+};
 
 // loading functions
 void loadTrainingData(LoadingParams params,
