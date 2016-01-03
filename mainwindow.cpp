@@ -19,11 +19,19 @@ MainWindow::MainWindow(QWidget *parent) :
   timer->start(CAMEAR_INTERVAL);
   connect(timer, SIGNAL(timeout()), this, SLOT(setImage()));
   // button event
-  connect(ui->trainButton, SIGNAL(pressed()), SLOT(train()));
-  connect(ui->selectButton, SIGNAL(pressed()), this, SLOT(takePicture()));
-  connect(ui->resumeButton, SIGNAL(pressed()), this, SLOT(resume()));
-  connect(ui->yesButton, SIGNAL(pressed()), this, SLOT(resume()));
-  connect(ui->noButton, SIGNAL(pressed()), this, SLOT(addTrainingData()));
+  connect(ui->trainButton, SIGNAL(pressed()),
+          this, SLOT(train()));
+  connect(ui->selectButton, SIGNAL(pressed()),
+          this, SLOT(takePicture()));
+  connect(ui->resumeButton, SIGNAL(pressed()),
+          this, SLOT(resume()));
+  connect(ui->yesButton, SIGNAL(pressed()),
+          this, SLOT(resume()));
+  connect(ui->noButton, SIGNAL(pressed()),
+          this, SLOT(addTrainingData()));
+  // face classifier message capture
+  connect(faceClassifier, SIGNAL(sendMessage(QString)),
+          this, SLOT(setLog(QString)));
 
   // scan image directory for people list
   ui->selectComboBox->addItem(QString(SELECT));
