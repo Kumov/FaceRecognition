@@ -41,7 +41,11 @@ void TrainingTask::run() {
                        loadingPercent,
                        featureType);
   // load the images into matrix
-  loadTrainingData(params, trainingData, trainingLabel, names);
+  TrainingDataLoader loader(params);
+  connect(&loader, SIGNAL(sendMessage(QString)), this,
+          SLOT(captureMessage(QString)));
+  loader.load(trainingData, trainingLabel, names);
+  // loadTrainingData(params, trainingData, trainingLabel, names);
   sendMessage("training data loaded");
 
   // training
