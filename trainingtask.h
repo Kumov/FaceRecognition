@@ -12,7 +12,6 @@
 #include "classifier.h"
 
 using classifier::LoadingParams;
-using classifier::loadTrainingData;
 using classifier::FaceClassifier;
 using classifier::FeatureType;
 using classifier::TrainingDataLoader;
