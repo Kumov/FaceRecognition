@@ -9,10 +9,6 @@
 #define DEFAULT_COEF0 0.1
 #define DEFAULT_P 0
 
-#define BG_DIR "bg"
-#define POS_DIR "/pos"
-#define NEG_DIR "/neg"
-
 #undef MIN
 #define MIN(n1, n2) (n1 < n2 ? n1 : n2)
 
@@ -22,11 +18,15 @@ TrainingDataLoader::TrainingDataLoader(const LoadingParams params) {
   this->directory = params.directory;
   this->percent = params.percentForTraining;
   this->featureType = params.featureType;
+  this->bgDir = params.bgDir;
+  this->posDir = params.posDir;
+  this->negDir = params.negDir;
 }
 
 void TrainingDataLoader::load(Mat& trainingData,
                               Mat& trainingLabel,
                               map<int,string>& names) {
+  // directory constants
   size_t trainingSize = 0, testingSize = 0;
   vector<string> userFiles, exclusion;
   exclusion.push_back(".");
@@ -36,13 +36,12 @@ void TrainingDataLoader::load(Mat& trainingData,
   for (uint32_t i = 0 ; i < userFiles.size() ; i ++) {
     string path;
     vector<string> imagePaths;
-    if (strcmp(userFiles[i].c_str(), BG_DIR) == 0) {
+    if (strcmp(userFiles[i].c_str(), bgDir.c_str()) == 0) {
       // background images
       path = directory + string(SEPARATOR) + userFiles[i];
     } else {
       // users images
-      path = directory + string(SEPARATOR) + userFiles[i] +
-          string(POS_DIR);
+      path = directory + string(SEPARATOR) + userFiles[i] + posDir;
     }
     scanDir(path, imagePaths, exclusion);
     trainingSize += (size_t) (imagePaths.size() * percent);
@@ -90,13 +89,12 @@ void TrainingDataLoader::load(Mat& trainingData,
   for (uint32_t i = 0 ; i < userFiles.size() ; i ++) {
     string path;
     vector<string> imagePaths;
-    if (strcmp(userFiles[i].c_str(), BG_DIR) == 0) {
+    if (strcmp(userFiles[i].c_str(), bgDir.c_str()) == 0) {
       // background images
       path = directory + string(SEPARATOR) + userFiles[i];
     } else {
       // users images
-      path = directory + string(SEPARATOR) + userFiles[i] +
-          string(POS_DIR);
+      path = directory + string(SEPARATOR) + userFiles[i] + posDir;
     }
     scanDir(path, imagePaths, exclusion);
 
@@ -275,6 +273,8 @@ void loadTrainingData(LoadingParams params,
                       map<int,string>& names) {
   // prepare the params
   const string directory = params.directory;
+  const string bgDir = params.bgDir;
+  const string posDir = params.posDir;
   const double percent = params.percentForTraining;
   const FeatureType featureType = params.featureType;
 
@@ -287,13 +287,12 @@ void loadTrainingData(LoadingParams params,
   for (uint32_t i = 0 ; i < userFiles.size() ; i ++) {
     string path;
     vector<string> imagePaths;
-    if (strcmp(userFiles[i].c_str(), BG_DIR) == 0) {
+    if (strcmp(userFiles[i].c_str(), bgDir.c_str()) == 0) {
       // background images
       path = directory + string(SEPARATOR) + userFiles[i];
     } else {
       // users images
-      path = directory + string(SEPARATOR) + userFiles[i] +
-          string(POS_DIR);
+      path = directory + string(SEPARATOR) + userFiles[i] + posDir;
     }
     scanDir(path, imagePaths, exclusion);
     trainingSize += (size_t) (imagePaths.size() * percent);
@@ -339,13 +338,12 @@ void loadTrainingData(LoadingParams params,
   for (uint32_t i = 0 ; i < userFiles.size() ; i ++) {
     string path;
     vector<string> imagePaths;
-    if (strcmp(userFiles[i].c_str(), BG_DIR) == 0) {
+    if (strcmp(userFiles[i].c_str(), bgDir.c_str()) == 0) {
       // background images
       path = directory + string(SEPARATOR) + userFiles[i];
     } else {
       // users images
-      path = directory + string(SEPARATOR) + userFiles[i] +
-          string(POS_DIR);
+      path = directory + string(SEPARATOR) + userFiles[i] + posDir;
     }
     scanDir(path, imagePaths, exclusion);
 
@@ -851,7 +849,6 @@ bool FaceClassifier::isLoaded() {
 #undef DEFAULT_DEGREE
 #undef DEFAULT_COEF0
 #undef DEFAULT_P
-#undef POS_DIR
-#undef NEG_DIR
+
 
 #undef MIN

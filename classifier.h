@@ -14,6 +14,10 @@
 #include "process.h"
 #include "common.h"
 
+#define DEFAULT_BG_DIR "bg"
+#define DEFAULT_POS_DIR "/pos"
+#define DEFAULT_NEG_DIR "/neg"
+
 #ifdef QT_DEBUG
 using std::cout;
 using std::endl;
@@ -52,7 +56,25 @@ typedef struct LoadingParams {
     featureType = type;
   }
 
+  LoadingParams(string dir, string bg,
+                string pos, string neg,
+                double percent, FeatureType type) {
+    directory = dir;
+    if (percent <= 1.0 && percent >= 0) {
+      percentForTraining = percent;
+    } else {
+      percentForTraining = 1.0;
+    }
+    featureType = type;
+    bgDir = bg;
+    posDir = pos;
+    negDir = neg;
+  }
+
   string directory;
+  string bgDir = BG_DIR;
+  string posDir = POS_DIR;
+  string negDir = NEG_DIR;
   double percentForTraining;
   FeatureType featureType;
 } LoadingParams;
@@ -71,6 +93,7 @@ class TrainingDataLoader : public QObject {
 
  private:
   string directory;
+  string bgDir, posDir, negDir;
   double percent;
   FeatureType featureType;
 };
@@ -214,5 +237,8 @@ typedef struct FaceClassifierParams {
 
 } /* classifier */
 
+#undef DEFAULT_BG_DIR
+#undef DEFAULT_POS_DIR
+#undef DEFAULT_NEG_DIR
 
 #endif /* end of include guard: CLASSIFIER_H */
