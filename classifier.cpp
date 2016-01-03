@@ -75,7 +75,12 @@ void TrainingDataLoader::load(Mat& trainingData,
       break;
   }
 
+#ifdef DEBUG
   cout << "feature length: " << featureLength << endl;
+#endif
+  sendMessage(QString("feature length: ") +
+              QString::number(featureLength));
+
   // data
   Mat tnd = Mat::zeros(trainingSize, featureLength, CV_32FC1);
   Mat ttd = Mat::zeros(testingSize, featureLength, CV_32FC1);
@@ -198,10 +203,10 @@ void TrainingDataLoader::load(Mat& trainingData,
 
   // debug info
 #ifdef DEBUG
-//  cout << tnd << endl;
-//  cout << ttd << endl;
+  cout << tnd << endl;
+  cout << ttd << endl;
   cout << tnl << endl;
-//  cout << ttl << endl;
+  cout << ttl << endl;
 #endif
 
   // put all data/lables into trainingData/Labels
@@ -229,7 +234,7 @@ void TrainingDataLoader::load(Mat& trainingData,
   }
 
 #ifdef DEBUG
-//  cout << trainingData << endl;
+  cout << trainingData << endl;
   cout << trainingLabel << endl;
 #endif
 }
@@ -259,7 +264,7 @@ void TrainingDataLoader::brief(const Mat& mat, string& str) {
             break;
           case CV_32FC1:
             str += std::to_string(
-                  mat.ptr<float>()[i * mat.cols + j]);
+                  static_cast<int>(mat.ptr<float>()[i * mat.cols + j]));
             break;
         }
         if (j != colLimit - 1) str += ",";
@@ -326,7 +331,10 @@ void loadTrainingData(LoadingParams params,
       break;
   }
 
+#ifdef DEBUG
   cout << "feature length: " << featureLength << endl;
+#endif
+
   // data
   Mat tnd = Mat::zeros(trainingSize, featureLength, CV_32FC1);
   Mat ttd = Mat::zeros(testingSize, featureLength, CV_32FC1);
@@ -335,7 +343,7 @@ void loadTrainingData(LoadingParams params,
   Mat ttl = Mat::zeros(testingSize, 1, CV_32SC1);
   Mat image, X = Mat::zeros(1, featureLength, CV_32SC1);
 
-  // extracting lbp/ctlp data for individual samples
+  // extracting feature data for individual samples
   size_t trainingPos = 0, testingPos = 0;
   for (uint32_t i = 0 ; i < userFiles.size() ; i ++) {
     string path;
@@ -356,7 +364,9 @@ void loadTrainingData(LoadingParams params,
     // read individual images for training
     size_t trainingImageCount = static_cast<size_t>(imagePaths.size() * percent);
     for (uint32_t j = 0 ; j < trainingImageCount ; j ++) {
+#ifdef DEBUG
       cout << "tnd.rows = " << tnd.rows << " j = " << j << endl;
+#endif
 
       string imagePath = path + string(SEPARATOR) + imagePaths[j];
       image = imread(imagePath);
@@ -421,10 +431,10 @@ void loadTrainingData(LoadingParams params,
 
   // debug info
 #ifdef DEBUG
-//  cout << tnd << endl;
-//  cout << ttd << endl;
+  cout << tnd << endl;
+  cout << ttd << endl;
   cout << tnl << endl;
-//  cout << ttl << endl;
+  cout << ttl << endl;
 #endif
 
   // put all data/lables into trainingData/Labels
@@ -452,7 +462,7 @@ void loadTrainingData(LoadingParams params,
   }
 
 #ifdef DEBUG
-//  cout << trainingData << endl;
+  cout << trainingData << endl;
   cout << trainingLabel << endl;
 #endif
 }
@@ -781,11 +791,14 @@ int FaceClassifier::predict(cv::Mat& sample) {
 
 int FaceClassifier::predictImageSample(cv::Mat& imageSample) {
   size_t featureLength = 0;
-  Mat lbp, sample;
+  Mat X, sample;
+  string briefMat;
 
   switch (featureType) {
     case LBP:
       featureLength = 256;
+      X = Mat::zeros(1, featureLength, CV_32SC1);
+      process::computeLBP(imageSample, X);
       break;
     case LTP:
       // TODO
@@ -794,13 +807,20 @@ int FaceClassifier::predictImageSample(cv::Mat& imageSample) {
       // TODO
       break;
   }
-  lbp = Mat::zeros(1, featureLength, CV_32SC1);
-  sample = Mat::zeros(1, featureLength, CV_32FC1);
 
-  process::computeLBP(imageSample, lbp);
+  // copy feature to sample matrix to predict
+  sample = Mat::zeros(1, featureLength, CV_32FC1);
   for (uint32_t i = 0 ; i < featureLength ; i ++)
-    sample.ptr<float>()[i] = static_cast<float>(lbp.ptr<int>()[i]);
+    sample.ptr<float>()[i] = static_cast<float>(X.ptr<int>()[i]);
+
+  // display sample matrix
+#ifdef DEBUG
   cout << sample << endl;
+#endif
+  TrainingDataLoader::brief(sample, briefMat);
+  sendMessage(QString("sample mat: ") + QString(briefMat.c_str()));
+
+  // if the svm is train then predict the sample
   if (this->svm->isTrained()) {
       return this->svm->predict(sample);
   } else {
