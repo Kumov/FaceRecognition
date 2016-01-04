@@ -1,8 +1,12 @@
 #include "process.h"
 #include <stdio.h>
 
-using namespace cv;
-using namespace std;
+using cv::Vec3b;
+using cv::Point;
+using cv::Size;
+using cv::getRotationMatrix2D;
+using cv::saturate_cast;
+using cv::max;
 
 namespace process {
   void changeBrightness(Mat& image, double alpha) {
