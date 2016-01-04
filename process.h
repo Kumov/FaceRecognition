@@ -4,6 +4,12 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 
+#ifdef DEBUG
+#include <iostream>
+using std::cout;
+using std::endl;
+#endif
+
 using cv::Mat;
 
 namespace process {
