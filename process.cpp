@@ -112,4 +112,75 @@ namespace process {
       }
     }
   }
+
+  void computeLTP(Mat& image, Mat& ltp, int threshold) {
+    Mat gray;
+    ltp = Mat::zeros(1, 9841, CV_32SC1);
+
+    // convert to gray image
+    if (image.channels() == 3) {
+      cvtColor(image, gray, CV_BGR2GRAY);
+    } else if (image.channels() == 4) {
+      cvtColor(image, gray, CV_BGRA2GRAY);
+    } else if (image.channels() == 1) {
+      image.copyTo(gray);
+    } else {
+#ifdef DEBUG
+      cout << "ERROR: image null" << endl;
+#endif
+      return;
+    }
+
+    for (int i = 1 ; i < gray.rows - 1 ; i ++) {
+      uchar *lastRow = gray.data + (i-1) * gray.step;
+      uchar *thisRow = gray.data + (i) * gray.step;
+      uchar *nextRow = gray.data + (i+1) * gray.step;
+      for (int j = 1 ; j < gray.cols - 1 ; j ++) {
+        uint32_t value = 0;
+        if (lastRow[j-1] > thisRow[j] + threshold) {
+          value += 4374;    // 2 * 3^7
+        } else  if (lastRow[j-1] <= thisRow[j] + threshold &&
+                    lastRow[j-1] >= thisRow[j] - threshold) {
+          value += 2187;    // 1 * 3^7
+        } else if (lastRow[j] > thisRow[j] + threshold) {
+          value += 1458;    // 2 * 3^6
+        } else if (lastRow[j] <= thisRow[j] + threshold &&
+                   lastRow[j] >= thisRow[j] - threshold) {
+          value += 729;     // 1 * 3^6
+        } else if (lastRow[j+1] > thisRow[j] + threshold) {
+          value += 486;     // 2 * 3^5
+        } else if (lastRow[j+1] <= thisRow[j] + threshold &&
+                   lastRow[j+1] >= thisRow[j] - threshold) {
+          value += 243;     // 1 * 3^5
+        } else if (thisRow[j+1] > thisRow[j] + threshold) {
+          value += 162;     // 2 * 3^4
+        } else if (thisRow[j+1] <= thisRow[j] + threshold &&
+                   thisRow[j+1] >= thisRow[j] - threshold) {
+          value += 81;      // 1 * 3^4
+        } else if (nextRow[j+1] > thisRow[j] + threshold) {
+          value += 54;      // 2 * 3^3
+        } else if (nextRow[j+1] <= thisRow[j] + threshold &&
+                   nextRow[j+1] >= thisRow[j] - threshold) {
+          value += 27;      // 1 * 3^3
+        } else if (nextRow[j] > thisRow[j] + threshold) {
+          value += 18;      // 2 * 3^2
+        } else if (nextRow[j] <= thisRow[j] + threshold &&
+                   nextRow[j] >= thisRow[j] - threshold) {
+          value += 9;       // 1 * 3^2
+        } else if (nextRow[j-1] > thisRow[j] + threshold) {
+          value += 6;       // 2 * 3^1
+        } else if (nextRow[j-1] <= thisRow[j] + threshold &&
+                   nextRow[j-1] >= thisRow[j] - threshold) {
+          value += 3;       // 1 * 3^1
+        } else if (thisRow[j-1] > thisRow[j] + threshold) {
+          value += 2;       // 2 * 3^0
+        } else if (thisRow[j-1] <= thisRow[j] + threshold &&
+                   thisRow[j-1] >= thisRow[j] - threshold) {
+          value += 1;       // 1 * 3^0
+        }
+
+        ltp.ptr<int>()[value] ++;
+      }
+    }
+  }
 }
