@@ -7,6 +7,7 @@ using cv::Size;
 using cv::getRotationMatrix2D;
 using cv::saturate_cast;
 using cv::max;
+using cv::cvtColor;
 
 namespace process {
   void changeBrightness(Mat& image, double alpha) {
@@ -79,16 +80,22 @@ namespace process {
   }
 
   void computeLBP(Mat& image, Mat& lbp) {
-    if (lbp.type() != CV_32SC1 || lbp.cols != 256)
-      return;
-
-    for (int i = 0 ; i < lbp.cols ; i ++) lbp.ptr<int>()[i] = 0;
-
+    lbp = Mat::zeros(1, 256, CV_32SC1);
     Mat gray;
-    if (image.channels() == 3)
+
+    if (image.channels() == 3) {
       cvtColor(image, gray, CV_BGR2GRAY);
-    else if (image.channels() == 4)
+    } else if (image.channels() == 4) {
       cvtColor(image, gray, CV_BGRA2GRAY);
+    } else if (image.channels() == 1) {
+      image.copyTo(gray);
+    } else {
+#ifdef DEBUG
+      cout << "ERROR: image null" << endl;
+#endif
+      return;
+    }
+
     for (int i = 1 ; i < gray.rows - 1 ; i ++) {
       uchar *lastRow = gray.data + (i-1) * gray.step;
       uchar *thisRow = gray.data + (i) * gray.step;
