@@ -28,11 +28,13 @@ using std::map;
 using std::vector;
 using std::pair;
 using cv::Mat;
+using cv::Size;
 using cv::ml::TrainData;
 using cv::ml::ROW_SAMPLE;
 using cv::ml::SVM;
 using cv::Ptr;
 using cv::imread;
+using cv::resize;
 using cv::ml::StatModel;
 
 namespace classifier {
@@ -46,7 +48,9 @@ typedef enum {
 // params for loading
 typedef struct LoadingParams {
   LoadingParams() {}
-  LoadingParams(string dir, double percent, FeatureType type) {
+  LoadingParams(string dir, double percent,
+                FeatureType type,
+                Size size) {
     directory = dir;
     if (percent <= 1.0 && percent >= 0) {
       percentForTraining = percent;
@@ -54,11 +58,13 @@ typedef struct LoadingParams {
       percentForTraining = 1.0;
     }
     featureType = type;
+    imageSize = size;
   }
 
   LoadingParams(string dir, string bg,
                 string pos, string neg,
-                double percent, FeatureType type) {
+                double percent, FeatureType type,
+                Size size) {
     directory = dir;
     if (percent <= 1.0 && percent >= 0) {
       percentForTraining = percent;
@@ -69,6 +75,7 @@ typedef struct LoadingParams {
     bgDir = bg;
     posDir = pos;
     negDir = neg;
+    imageSize = size;
   }
 
   string directory;
@@ -77,6 +84,7 @@ typedef struct LoadingParams {
   string negDir = DEFAULT_NEG_DIR;
   double percentForTraining;
   FeatureType featureType;
+  Size imageSize;
 } LoadingParams;
 
 class TrainingDataLoader : public QObject {
@@ -96,6 +104,7 @@ class TrainingDataLoader : public QObject {
   string bgDir, posDir, negDir;
   double percent;
   FeatureType featureType;
+  Size imageSize;
 };
 
 // loading functions
@@ -164,12 +173,14 @@ class FaceClassifier : public QObject {
   FaceClassifier(double gamma, double c, double nu,
                  double degree, double coef0, double p,
                  FaceClassifierType type,
-                 FaceClassifierKernelType kernelType);
+                 FaceClassifierKernelType kernelType,
+                 Size size);
   FaceClassifier(double gamma, double c, double nu,
                  double degree, double coef0, double p,
                  FaceClassifierType type,
                  FaceClassifierKernelType kernelType,
-                 Mat& data, Mat& label);
+                 Mat& data, Mat& label,
+                 Size size);
   virtual ~FaceClassifier() {}
   void saveModel();
   void saveModel(string modelPath);
@@ -196,6 +207,7 @@ class FaceClassifier : public QObject {
   double gammaCache;
   Mat trainingData, testingData;
   Mat trainingLabel, testingLabel;
+  Size imageSize;
   const string MODEL_OUTPUT = "facemodel.xml";
   const double TEST_ACCURACY_REQUIREMENT = 0.96;
   const double TEST_PERCENT = 0.1;
@@ -211,6 +223,7 @@ typedef struct FaceClassifierParams {
   double p;
   FaceClassifier::FaceClassifierType type;
   FaceClassifier::FaceClassifierKernelType kernelType;
+  Size imageSize;
 
   FaceClassifierParams() {
     gamma = 1.0;
@@ -223,7 +236,7 @@ typedef struct FaceClassifierParams {
     kernelType = FaceClassifier::LINEAR;
   }
 
-  FaceClassifierParams(double _gamma) {
+  FaceClassifierParams(Size size, double _gamma) {
     gamma = _gamma;
     c = 1.0;
     nu = 1.0;
@@ -232,6 +245,7 @@ typedef struct FaceClassifierParams {
     p = 0;
     type = FaceClassifier::C_SVC;
     kernelType = FaceClassifier::RBF;
+    imageSize = size;
   }
 } FaceClassifierParams;
 
