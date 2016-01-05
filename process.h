@@ -18,8 +18,7 @@ namespace process {
   void rotateImage(Mat& image, const double deg);
   void computeLBP(Mat& image, Mat& lbp);
   void computeLTP(Mat& image, Mat& ltp, int threshold);
-  void computeCSLTP(Mat& image, Mat& csltp,
-                    int threshold, uint32_t level);
+  void computeCSLTP(Mat& image, Mat& csltp, int threshold);
 }
 
 #endif /* end of include guard: PROCESS_H */
