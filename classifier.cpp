@@ -66,11 +66,9 @@ void TrainingDataLoader::load(Mat& trainingData,
       featureLength = 256;
       break;
     case LTP:
-      // TODO
-      featureLength = 256;
+      featureLength = 9841;
       break;
     case CSLTP:
-      // TODO
       featureLength = 81;
       break;
   }
@@ -87,7 +85,7 @@ void TrainingDataLoader::load(Mat& trainingData,
   // labels
   Mat tnl = Mat::zeros(trainingSize, 1, CV_32SC1);
   Mat ttl = Mat::zeros(testingSize, 1, CV_32SC1);
-  Mat image, X = Mat::zeros(1, featureLength, CV_32SC1);
+  Mat image, X;
 
   // extracting lbp/ctlp data for individual samples
   size_t trainingPos = 0, testingPos = 0;
@@ -117,7 +115,6 @@ void TrainingDataLoader::load(Mat& trainingData,
       string imagePath = path + string(SEPARATOR) + imagePaths[j];
       image = imread(imagePath);
 
-      X = Mat::zeros(1, featureLength, CV_32SC1);
       if (image.data) {
         // compute feature
         switch (featureType) {
@@ -130,7 +127,7 @@ void TrainingDataLoader::load(Mat& trainingData,
             processingType = "LTP";
             break;
           case CSLTP:
-            // TODO
+            process::computeCSLTP(image, X, 25, 1);
             processingType = "CSLTP";
             break;
         }
@@ -150,7 +147,7 @@ void TrainingDataLoader::load(Mat& trainingData,
         // copy the x sample to tnd
         for (uint32_t k = 0 ; k < featureLength ; k ++) {
           tnd.ptr<float>()[(j + trainingPos) * tnd.cols + k] =
-              static_cast<float>(X.ptr<int>()[k]);
+              X.ptr<float>()[k];
         }
 
         // set label for this sample
@@ -166,7 +163,6 @@ void TrainingDataLoader::load(Mat& trainingData,
       string imagePath = path + string(SEPARATOR) +
           imagePaths[j + (size_t)(imagePaths.size() * percent)];
       image = imread(imagePath);
-      X = Mat::zeros(1, featureLength, CV_32SC1);
       if (image.data) {
         // compute feature
         switch (featureType) {
@@ -175,11 +171,11 @@ void TrainingDataLoader::load(Mat& trainingData,
             processingType = "LBP";
             break;
           case LTP:
-            // TODO
+            process::computeLTP(image, X, 25);
             processingType = "LTP";
             break;
           case CSLTP:
-            // TODO
+            process::computeCSLTP(image, X, 25, 1);
             processingType = "CSLTP";
             break;
         }
@@ -192,7 +188,7 @@ void TrainingDataLoader::load(Mat& trainingData,
         // copy the x sample to tnd
         for (uint32_t k = 0 ; k < featureLength ; k ++) {
           ttd.ptr<float>()[(j + testingPos) * ttd.cols + k] =
-              static_cast<float>(X.ptr<int>()[k]);
+              X.ptr<float>()[k];
         }
         // set label for this sample
         ttl.ptr<int>()[j + testingPos] = i - userFiles.size() / 2;
@@ -322,11 +318,9 @@ void loadTrainingData(LoadingParams params,
       featureLength = 256;
       break;
     case LTP:
-      // TODO
-      featureLength = 256;
+      featureLength = 9841;
       break;
     case CSLTP:
-      // TODO
       featureLength = 81;
       break;
   }
@@ -341,7 +335,7 @@ void loadTrainingData(LoadingParams params,
   // labels
   Mat tnl = Mat::zeros(trainingSize, 1, CV_32SC1);
   Mat ttl = Mat::zeros(testingSize, 1, CV_32SC1);
-  Mat image, X = Mat::zeros(1, featureLength, CV_32SC1);
+  Mat image, X;
 
   // extracting feature data for individual samples
   size_t trainingPos = 0, testingPos = 0;
@@ -370,7 +364,6 @@ void loadTrainingData(LoadingParams params,
 
       string imagePath = path + string(SEPARATOR) + imagePaths[j];
       image = imread(imagePath);
-      X = Mat::zeros(1, featureLength, CV_32SC1);
       if (image.data) {
         // compute feature
         switch (featureType) {
@@ -378,16 +371,16 @@ void loadTrainingData(LoadingParams params,
             process::computeLBP(image, X);
             break;
           case LTP:
-            // TODO
+            process::computeLTP(image, X, 25);
             break;
           case CSLTP:
-            // TODO
+            process::computeCSLTP(image, X, 25, 1);
             break;
         }
         // copy the x sample to tnd
         for (uint32_t k = 0 ; k < featureLength ; k ++) {
           tnd.ptr<float>()[(j + trainingPos) * tnd.cols + k] =
-              static_cast<float>(X.ptr<int>()[k]);
+              X.ptr<float>()[k];
         }
 
         // set label for this sample
@@ -402,7 +395,6 @@ void loadTrainingData(LoadingParams params,
       string imagePath = path + string(SEPARATOR) +
           imagePaths[j + (size_t)(imagePaths.size() * percent)];
       image = imread(imagePath);
-      X = Mat::zeros(1, featureLength, CV_32SC1);
       if (image.data) {
         // compute feature
         switch (featureType) {
@@ -410,16 +402,16 @@ void loadTrainingData(LoadingParams params,
             process::computeLBP(image, X);
             break;
           case LTP:
-            // TODO
+            process::computeLTP(image, X, 25);
             break;
           case CSLTP:
-            // TODO
+            process::computeCSLTP(image, X, 25, 1);
             break;
         }
         // copy the x sample to tnd
         for (uint32_t k = 0 ; k < featureLength ; k ++) {
           ttd.ptr<float>()[(j + testingPos) * ttd.cols + k] =
-              static_cast<float>(X.ptr<int>()[k]);
+              X.ptr<float>()[k];
         }
         // set label for this sample
         ttl.ptr<int>()[j + testingPos] = i - userFiles.size() / 2;
@@ -790,28 +782,20 @@ int FaceClassifier::predict(cv::Mat& sample) {
 }
 
 int FaceClassifier::predictImageSample(cv::Mat& imageSample) {
-  size_t featureLength = 0;
-  Mat X, sample;
+  Mat sample;
   string briefMat;
 
   switch (featureType) {
     case LBP:
-      featureLength = 256;
-      X = Mat::zeros(1, featureLength, CV_32SC1);
-      process::computeLBP(imageSample, X);
+      process::computeLBP(imageSample, sample);
       break;
     case LTP:
-      // TODO
+      process::computeLTP(imageSample, sample, 25);
       break;
     case CSLTP:
-      // TODO
+      process::computeCSLTP(imageSample, sample, 25, 1);
       break;
   }
-
-  // copy feature to sample matrix to predict
-  sample = Mat::zeros(1, featureLength, CV_32FC1);
-  for (uint32_t i = 0 ; i < featureLength ; i ++)
-    sample.ptr<float>()[i] = static_cast<float>(X.ptr<int>()[i]);
 
   // display sample matrix
 #ifdef DEBUG
