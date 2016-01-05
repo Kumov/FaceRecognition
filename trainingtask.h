@@ -16,6 +16,7 @@ using classifier::FaceClassifier;
 using classifier::FeatureType;
 using classifier::TrainingDataLoader;
 using cv::Mat;
+using cv::Size;
 using std::map;
 using std::string;
 
