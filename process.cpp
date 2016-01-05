@@ -80,7 +80,7 @@ namespace process {
   }
 
   void computeLBP(Mat& image, Mat& lbp) {
-    lbp = Mat::zeros(1, 256, CV_32SC1);
+    lbp = Mat::zeros(1, 256, CV_32FC1);
     Mat gray;
 
     if (image.channels() == 3) {
@@ -119,14 +119,14 @@ namespace process {
         else if (thisRow[j] > thisRow[j-1])
           value += 1;
 
-        lbp.ptr<int>()[value] ++;
+        lbp.ptr<float>()[value] ++;
       }
     }
   }
 
   void computeLTP(Mat& image, Mat& ltp, int threshold) {
     Mat gray;
-    ltp = Mat::zeros(1, 9841, CV_32SC1);
+    ltp = Mat::zeros(1, 9841, CV_32FC1);
 
     // convert to gray image
     if (image.channels() == 3) {
@@ -190,7 +190,21 @@ namespace process {
           value += 1;       // 1 * 3^0
         }
 
-        ltp.ptr<int>()[value] ++;
+        ltp.ptr<float>()[value] ++;
+      }
+    }
+  }
+
+  void computeCSLTP(Mat& image, Mat& csltp,
+                    int threshold, uint32_t level) {
+    // TODO
+    const uint32_t parts = 2 * level + 1;
+    const uint32_t hSegment =
+        static_cast<uint32_t>(image.cols * 1.0 / parts);
+    const uint32_t vSegment =
+        static_cast<uint32_t>(image.rows * 1.0 / parts);
+    for (uint32_t i = 0 ; i < parts ; i ++) {
+      for (uint32_t j = 0 ; j < parts ; j ++) {
       }
     }
   }
