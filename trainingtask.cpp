@@ -39,7 +39,7 @@ void TrainingTask::run() {
   // prepare loading parameters
   LoadingParams params(faceImageDirectory.toStdString(),
                        loadingPercent,
-                       featureType);
+                       featureType, Size(64, 64));
   // load the images into matrix
   TrainingDataLoader loader(params);
   connect(&loader, SIGNAL(sendMessage(QString)), this,
@@ -55,7 +55,8 @@ void TrainingTask::run() {
                                         FaceClassifier::C_SVC,
                                         FaceClassifier::RBF,
                                         trainingData,
-                                        trainingLabel);
+                                        trainingLabel,
+                                        Size(64, 64));
     // connect log message from training task
     connect(faceClassifier, SIGNAL(sendMessage(QString)),
             this, SLOT(captureMessage(QString)));
