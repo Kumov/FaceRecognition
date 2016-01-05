@@ -104,19 +104,19 @@ namespace process {
         uint32_t value = 0;
         if (thisRow[j] > lastRow[j-1])
           value += 128;
-        else if (thisRow[j] > lastRow[j])
+        if (thisRow[j] > lastRow[j])
           value += 64;
-        else if (thisRow[j] > lastRow[j+1])
+        if (thisRow[j] > lastRow[j+1])
           value += 32;
-        else if (thisRow[j] > thisRow[j+1])
+        if (thisRow[j] > thisRow[j+1])
           value += 16;
-        else if (thisRow[j] > nextRow[j+1])
+        if (thisRow[j] > nextRow[j+1])
           value += 8;
-        else if (thisRow[j] > nextRow[j])
+        if (thisRow[j] > nextRow[j])
           value += 4;
-        else if (thisRow[j] > nextRow[j-1])
+        if (thisRow[j] > nextRow[j-1])
           value += 2;
-        else if (thisRow[j] > thisRow[j-1])
+        if (thisRow[j] > thisRow[j-1])
           value += 1;
 
         lbp.ptr<float>()[value] ++;
@@ -150,42 +150,64 @@ namespace process {
         uint32_t value = 0;
         if (lastRow[j-1] > thisRow[j] + threshold) {
           value += 4374;    // 2 * 3^7
-        } else  if (lastRow[j-1] <= thisRow[j] + threshold &&
+        }
+        if (lastRow[j-1] <= thisRow[j] + threshold &&
                     lastRow[j-1] >= thisRow[j] - threshold) {
           value += 2187;    // 1 * 3^7
-        } else if (lastRow[j] > thisRow[j] + threshold) {
+        }
+
+        if (lastRow[j] > thisRow[j] + threshold) {
           value += 1458;    // 2 * 3^6
-        } else if (lastRow[j] <= thisRow[j] + threshold &&
+        }
+        if (lastRow[j] <= thisRow[j] + threshold &&
                    lastRow[j] >= thisRow[j] - threshold) {
           value += 729;     // 1 * 3^6
-        } else if (lastRow[j+1] > thisRow[j] + threshold) {
+        }
+
+        if (lastRow[j+1] > thisRow[j] + threshold) {
           value += 486;     // 2 * 3^5
-        } else if (lastRow[j+1] <= thisRow[j] + threshold &&
+        }
+        if (lastRow[j+1] <= thisRow[j] + threshold &&
                    lastRow[j+1] >= thisRow[j] - threshold) {
           value += 243;     // 1 * 3^5
-        } else if (thisRow[j+1] > thisRow[j] + threshold) {
+        }
+
+        if (thisRow[j+1] > thisRow[j] + threshold) {
           value += 162;     // 2 * 3^4
-        } else if (thisRow[j+1] <= thisRow[j] + threshold &&
+        }
+        if (thisRow[j+1] <= thisRow[j] + threshold &&
                    thisRow[j+1] >= thisRow[j] - threshold) {
           value += 81;      // 1 * 3^4
-        } else if (nextRow[j+1] > thisRow[j] + threshold) {
+        }
+
+        if (nextRow[j+1] > thisRow[j] + threshold) {
           value += 54;      // 2 * 3^3
-        } else if (nextRow[j+1] <= thisRow[j] + threshold &&
+        }
+        if (nextRow[j+1] <= thisRow[j] + threshold &&
                    nextRow[j+1] >= thisRow[j] - threshold) {
           value += 27;      // 1 * 3^3
-        } else if (nextRow[j] > thisRow[j] + threshold) {
+        }
+
+        if (nextRow[j] > thisRow[j] + threshold) {
           value += 18;      // 2 * 3^2
-        } else if (nextRow[j] <= thisRow[j] + threshold &&
+        }
+        if (nextRow[j] <= thisRow[j] + threshold &&
                    nextRow[j] >= thisRow[j] - threshold) {
           value += 9;       // 1 * 3^2
-        } else if (nextRow[j-1] > thisRow[j] + threshold) {
+        }
+
+        if (nextRow[j-1] > thisRow[j] + threshold) {
           value += 6;       // 2 * 3^1
-        } else if (nextRow[j-1] <= thisRow[j] + threshold &&
+        }
+        if (nextRow[j-1] <= thisRow[j] + threshold &&
                    nextRow[j-1] >= thisRow[j] - threshold) {
           value += 3;       // 1 * 3^1
-        } else if (thisRow[j-1] > thisRow[j] + threshold) {
+        }
+
+        if (thisRow[j-1] > thisRow[j] + threshold) {
           value += 2;       // 2 * 3^0
-        } else if (thisRow[j-1] <= thisRow[j] + threshold &&
+        }
+        if (thisRow[j-1] <= thisRow[j] + threshold &&
                    thisRow[j-1] >= thisRow[j] - threshold) {
           value += 1;       // 1 * 3^0
         }
@@ -195,16 +217,62 @@ namespace process {
     }
   }
 
-  void computeCSLTP(Mat& image, Mat& csltp,
-                    int threshold, uint32_t level) {
-    // TODO
-    const uint32_t parts = 2 * level + 1;
-    const uint32_t hSegment =
-        static_cast<uint32_t>(image.cols * 1.0 / parts);
-    const uint32_t vSegment =
-        static_cast<uint32_t>(image.rows * 1.0 / parts);
-    for (uint32_t i = 0 ; i < parts ; i ++) {
-      for (uint32_t j = 0 ; j < parts ; j ++) {
+  void computeCSLTP(Mat& image, Mat& csltp, int threshold) {
+    csltp = Mat::zeros(1, 256, CV_32FC1);
+    Mat gray;
+
+    if (image.channels() == 3) {
+      cvtColor(image, gray, CV_BGR2GRAY);
+    } else if (image.channels() == 4) {
+      cvtColor(image, gray, CV_BGRA2GRAY);
+    } else if (image.channels() == 1) {
+      image.copyTo(gray);
+    } else {
+#ifdef DEBUG
+      cout << "ERROR: image null" << endl;
+#endif
+      return;
+    }
+
+    for (int i = 1 ; i < gray.rows - 1 ; i ++) {
+      uchar *lastRow = gray.data + (i-1) * gray.step;
+      uchar *thisRow = gray.data + (i) * gray.step;
+      uchar *nextRow = gray.data + (i+1) * gray.step;
+      for (int j = 1 ; j < gray.cols - 1 ; j ++) {
+        uint32_t value = 0;
+        if (lastRow[j-1] - nextRow[j+1] > threshold) {
+          value += 54;
+        }
+        if (lastRow[j-1] - nextRow[j+1] <= threshold &&
+            lastRow[j-1] - nextRow[j+1] >= -threshold) {
+          value += 27;
+        }
+
+        if (lastRow[j] - nextRow[j] > threshold) {
+          value += 18;
+        }
+        if (lastRow[j] - nextRow[j] <= threshold &&
+            lastRow[j] - nextRow[j] >= -threshold) {
+          value += 9;
+        }
+
+        if (lastRow[j+1] - nextRow[j-1] > threshold) {
+          value += 6;
+        }
+        if (lastRow[j+1] - nextRow[j-1] <= threshold &&
+            lastRow[j+1] - nextRow[j-1] >= -threshold) {
+          value += 3;
+        }
+
+        if (thisRow[j+1] - thisRow[j-1] > threshold) {
+          value += 2;
+        }
+        if (thisRow[j+1] - thisRow[j-1] <= threshold &&
+            thisRow[j+1] - thisRow[j-1] >= -threshold) {
+          value += 1;
+        }
+
+        csltp.ptr<float>()[value] ++;
       }
     }
   }
