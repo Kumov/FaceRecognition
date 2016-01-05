@@ -123,7 +123,7 @@ void TrainingDataLoader::load(Mat& trainingData,
             processingType = "LBP";
             break;
           case LTP:
-            // TODO
+            process::computeLTP(image, X, 25);
             processingType = "LTP";
             break;
           case CSLTP:
