@@ -21,6 +21,7 @@ TrainingDataLoader::TrainingDataLoader(const LoadingParams params) {
   this->bgDir = params.bgDir;
   this->posDir = params.posDir;
   this->negDir = params.negDir;
+  this->imageSize = params.imageSize;
 }
 
 void TrainingDataLoader::load(Mat& trainingData,
@@ -116,18 +117,20 @@ void TrainingDataLoader::load(Mat& trainingData,
       image = imread(imagePath);
 
       if (image.data) {
+        Mat resized = Mat::zeros(imageSize, image.type());
+        resize(image, resized, imageSize);
         // compute feature
         switch (featureType) {
           case LBP:
-            process::computeLBP(image, X);
+            process::computeLBP(resized, X);
             processingType = "LBP";
             break;
           case LTP:
-            process::computeLTP(image, X, 25);
+            process::computeLTP(resized, X, 25);
             processingType = "LTP";
             break;
           case CSLTP:
-            process::computeCSLTP(image, X, 25, 1);
+            process::computeCSLTP(resized, X, 25);
             processingType = "CSLTP";
             break;
         }
@@ -136,7 +139,7 @@ void TrainingDataLoader::load(Mat& trainingData,
       cout << "tnd.rows = " << tnd.rows << " j = " << j << endl;
 #endif
 
-        TrainingDataLoader::brief(image, briefMat);
+        TrainingDataLoader::brief(X, briefMat);
         sendMessage(QString("Training: loading image from ") +
                     QString(imagePath.c_str()) +
                     QString(" | processing image with ") +
@@ -163,19 +166,22 @@ void TrainingDataLoader::load(Mat& trainingData,
       string imagePath = path + string(SEPARATOR) +
           imagePaths[j + (size_t)(imagePaths.size() * percent)];
       image = imread(imagePath);
+
       if (image.data) {
+        Mat resized = Mat::zeros(imageSize, image.type());
+        resize(image, resized, imageSize);
         // compute feature
         switch (featureType) {
           case LBP:
-            process::computeLBP(image, X);
+            process::computeLBP(resized, X);
             processingType = "LBP";
             break;
           case LTP:
-            process::computeLTP(image, X, 25);
+            process::computeLTP(resized, X, 25);
             processingType = "LTP";
             break;
           case CSLTP:
-            process::computeCSLTP(image, X, 25, 1);
+            process::computeCSLTP(resized, X, 25);
             processingType = "CSLTP";
             break;
         }
@@ -280,6 +286,7 @@ void loadTrainingData(LoadingParams params,
   const string posDir = params.posDir;
   const double percent = params.percentForTraining;
   const FeatureType featureType = params.featureType;
+  const Size size = params.imageSize;
 
   size_t trainingSize = 0, testingSize = 0;
   vector<string> userFiles, exclusion;
@@ -364,17 +371,20 @@ void loadTrainingData(LoadingParams params,
 
       string imagePath = path + string(SEPARATOR) + imagePaths[j];
       image = imread(imagePath);
+
       if (image.data) {
+        Mat resized = Mat::zeros(size, image.type());
+        resize(image, resized, size);
         // compute feature
         switch (featureType) {
           case LBP:
-            process::computeLBP(image, X);
+            process::computeLBP(resized, X);
             break;
           case LTP:
-            process::computeLTP(image, X, 25);
+            process::computeLTP(resized, X, 25);
             break;
           case CSLTP:
-            process::computeCSLTP(image, X, 25, 1);
+            process::computeCSLTP(resized, X, 25);
             break;
         }
         // copy the x sample to tnd
@@ -395,19 +405,23 @@ void loadTrainingData(LoadingParams params,
       string imagePath = path + string(SEPARATOR) +
           imagePaths[j + (size_t)(imagePaths.size() * percent)];
       image = imread(imagePath);
+
       if (image.data) {
+        Mat resized = Mat::zeros(size, image.type());
+        resize(image, resized, size);
         // compute feature
         switch (featureType) {
           case LBP:
-            process::computeLBP(image, X);
+            process::computeLBP(resized, X);
             break;
           case LTP:
-            process::computeLTP(image, X, 25);
+            process::computeLTP(resized, X, 25);
             break;
           case CSLTP:
-            process::computeCSLTP(image, X, 25, 1);
+            process::computeCSLTP(resized, X, 25);
             break;
         }
+
         // copy the x sample to tnd
         for (uint32_t k = 0 ; k < featureLength ; k ++) {
           ttd.ptr<float>()[(j + testingPos) * ttd.cols + k] =
@@ -470,6 +484,8 @@ FaceClassifier::FaceClassifier() {
   this->coef0 = DEFAULT_COEF0;
   this->p = DEFAULT_P;
 
+  this->imageSize = Size(64, 64);
+
   this->setupSVM();
 }
 
@@ -483,6 +499,8 @@ FaceClassifier::FaceClassifier(FaceClassifierParams param) {
   this->degree = param.degree;
   this->coef0 = param.coef0;
   this->p = param.p;
+
+  this->imageSize = param.imageSize;
 
   this->setupSVM();
 }
@@ -552,7 +570,8 @@ void FaceClassifier::setupSVM() {
 FaceClassifier::FaceClassifier(double gamma, double c, double nu,
                                double degree, double coef0, double p,
                                FaceClassifierType type,
-                               FaceClassifierKernelType kernelType) {
+                               FaceClassifierKernelType kernelType,
+                               Size size) {
   this->type = type;
   this->kernelType = kernelType;
 
@@ -562,6 +581,7 @@ FaceClassifier::FaceClassifier(double gamma, double c, double nu,
   this->degree = degree;
   this->coef0 = coef0;
   this->p = p;
+  this->imageSize = size;
 
   this->setupSVM();
 }
@@ -570,7 +590,8 @@ FaceClassifier::FaceClassifier(double gamma, double c, double nu,
                                double degree, double coef0, double p,
                                FaceClassifierType type,
                                FaceClassifierKernelType kernelType,
-                               Mat& data, Mat& label) {
+                               Mat& data, Mat& label,
+                               Size size) {
   this->type = type;
   this->kernelType = kernelType;
 
@@ -580,6 +601,7 @@ FaceClassifier::FaceClassifier(double gamma, double c, double nu,
   this->degree = degree;
   this->coef0 = coef0;
   this->p = p;
+  this->imageSize = size;
 
   this->setupSVM();
 
@@ -628,48 +650,7 @@ void FaceClassifier::train() {
     // cache up original parameters
     this->gammaCache = this->gamma;
 
-    sendMessage(QString("increasing training parameter"));
     double accuracy = 0;
-    for (unsigned int i = 0 ; i < MAX_ITERATION ; i ++) {
-      this->svm->train(td);
-      accuracy = this->testAccuracy();
-
-#ifdef DEBUG
-      fprintf(stdout, "test accuracy: %lf\n", accuracy);
-#endif
-
-      if (accuracy >= TEST_ACCURACY_REQUIREMENT) {
-        sendMessage(QString("test accuracy: ") + QString::number(accuracy) +
-                    QString(" | requirement reach | stop training ..."));
-        return;
-      }
-
-      double l = 0;
-      switch (this->kernelType) {
-        case LINEAR:
-          break;
-        case POLY:
-          l = log10(this->gamma);
-          l += 0.1;
-          this->gamma = pow(10, l);
-          break;
-        case RBF:
-          l = log10(this->gamma);
-          l += 0.1;
-          this->gamma = pow(10, l);
-          break;
-        case SIGMOID:
-          l = log10(this->gamma);
-          l += 0.1;
-          this->gamma = pow(10, l);
-          break;
-      }
-      this->setupSVM();
-      sendMessage(QString("test accuracy: ") + QString::number(accuracy) +
-                  QString(" | gamma = ") + QString::number(this->gamma) +
-                  QString(" | continue to update..."));
-    }
-
     sendMessage(QString("decreasing training parameter"));
     this->gamma = this->gammaCache;
     for (unsigned int i = 0 ; i < MAX_ITERATION ; i ++) {
@@ -703,6 +684,48 @@ void FaceClassifier::train() {
         case SIGMOID:
           l = log10(this->gamma);
           l -= 0.1;
+          this->gamma = pow(10, l);
+          break;
+      }
+      this->setupSVM();
+      sendMessage(QString("test accuracy: ") + QString::number(accuracy) +
+                  QString(" | gamma = ") + QString::number(this->gamma) +
+                  QString(" | continue to update..."));
+    }
+
+    sendMessage(QString("increasing training parameter"));
+    for (unsigned int i = 0 ; i < MAX_ITERATION ; i ++) {
+      this->svm->train(td);
+      accuracy = this->testAccuracy();
+
+#ifdef DEBUG
+      fprintf(stdout, "test accuracy: %lf\n", accuracy);
+#endif
+
+      if (accuracy >= TEST_ACCURACY_REQUIREMENT) {
+        sendMessage(QString("test accuracy: ") +
+                    QString::number(accuracy) +
+                    QString(" | requirement reach | stop training ..."));
+        return;
+      }
+
+      double l = 0;
+      switch (this->kernelType) {
+        case LINEAR:
+          break;
+        case POLY:
+          l = log10(this->gamma);
+          l += 0.1;
+          this->gamma = pow(10, l);
+          break;
+        case RBF:
+          l = log10(this->gamma);
+          l += 0.1;
+          this->gamma = pow(10, l);
+          break;
+        case SIGMOID:
+          l = log10(this->gamma);
+          l += 0.1;
           this->gamma = pow(10, l);
           break;
       }
@@ -782,18 +805,21 @@ int FaceClassifier::predict(cv::Mat& sample) {
 }
 
 int FaceClassifier::predictImageSample(cv::Mat& imageSample) {
-  Mat sample;
+  Mat sample, resized;
   string briefMat;
+
+  resized = Mat::zeros(imageSize, imageSample.type());
+  resize(imageSample, resized, imageSize);
 
   switch (featureType) {
     case LBP:
-      process::computeLBP(imageSample, sample);
+      process::computeLBP(resized, sample);
       break;
     case LTP:
-      process::computeLTP(imageSample, sample, 25);
+      process::computeLTP(resized, sample, 25);
       break;
     case CSLTP:
-      process::computeCSLTP(imageSample, sample, 25, 1);
+      process::computeCSLTP(resized, sample, 25);
       break;
   }
 
