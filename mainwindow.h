@@ -31,7 +31,7 @@
 #define VALUE_NAME "value"
 #define SELECT_TEXT "Select one..."
 #define INTERVAL 33
-#define PERCENT 0.9
+#define PERCENT 0.80
 
 using classifier::FaceClassifier;
 using classifier::FeatureType;
