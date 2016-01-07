@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>851</width>
-    <height>619</height>
+    <width>1024</width>
+    <height>768</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,11 +29,20 @@
          <property name="enabled">
           <bool>true</bool>
          </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>160</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <family>Sans</family>
-           <pointsize>12</pointsize>
+           <pointsize>10</pointsize>
           </font>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -60,6 +69,12 @@
           <layout class="QVBoxLayout" name="takePictureLayout">
            <item>
             <widget class="QWidget" name="faceWidget" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>60</width>
+               <height>60</height>
+              </size>
+             </property>
              <layout class="QGridLayout" name="gridLayout_3">
               <item row="0" column="0">
                <layout class="QVBoxLayout" name="faceLayout"/>
@@ -93,16 +108,49 @@
              </property>
             </widget>
            </item>
+           <item>
+            <layout class="QHBoxLayout" name="addNewLayout">
+             <item>
+              <widget class="QPushButton" name="addButton">
+               <property name="font">
+                <font>
+                 <family>Sans</family>
+                 <pointsize>14</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>add new</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="leNew">
+               <property name="font">
+                <font>
+                 <family>Sauce Code Pro</family>
+                 <pointsize>14</pointsize>
+                </font>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
           </layout>
          </item>
          <item>
           <layout class="QVBoxLayout" name="yesnoLayout">
            <item>
             <widget class="QLabel" name="whoLabel">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>66</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <family>Sans</family>
-               <pointsize>14</pointsize>
+               <pointsize>16</pointsize>
               </font>
              </property>
              <property name="text">
@@ -147,7 +195,7 @@
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>50</height>
+             <height>36</height>
             </size>
            </property>
            <property name="font">
@@ -170,6 +218,48 @@
             </font>
            </property>
           </widget>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="featureLayout">
+           <item>
+            <widget class="QLabel" name="featureTypeText">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>feature type:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="featureRadioLayout">
+             <item>
+              <widget class="QRadioButton" name="rbLBP">
+               <property name="text">
+                <string>LBP</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="rbLTP">
+               <property name="text">
+                <string>LTP</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="rbCSLTP">
+               <property name="text">
+                <string>CSLTP</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </item>
          <item>
           <widget class="QPushButton" name="trainButton">
@@ -196,7 +286,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>851</width>
+     <width>1024</width>
      <height>21</height>
     </rect>
    </property>
