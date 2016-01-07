@@ -51,7 +51,7 @@ void TrainingTask::run() {
   // training
   if (faceClassifier == nullptr) {
     sendMessage("creating trainer...");
-    faceClassifier = new FaceClassifier(10, 1, 0, 1, 0, 0,
+    faceClassifier = new FaceClassifier(1, 1, 0, 1, 0, 0,
                                         FaceClassifier::C_SVC,
                                         FaceClassifier::RBF,
                                         trainingData,
