@@ -15,6 +15,9 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->mainWidget->layout()->addWidget(mainDisplay);
   ui->faceLayout->addWidget(faceDisplay);
 
+  // init
+  ui->rbLBP->setChecked(true);
+
   // start timer to update frame
   timer->start(CAMEAR_INTERVAL);
   connect(timer, SIGNAL(timeout()), this, SLOT(setImage()));
@@ -33,24 +36,10 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(faceClassifier, SIGNAL(sendMessage(QString)),
           this, SLOT(setLog(QString)));
 
-  // scan image directory for people list
-  ui->selectComboBox->addItem(QString(SELECT));
-  QDir imageRoot(FACE_IMAGE_DIR);
-  imageRoot.setFilter(QDir::Dirs);
-  QStringList dirList = imageRoot.entryList();
-  for (int i = 0 ; i < dirList.count() ; i ++) {
-    if (dirList[i] != "." && dirList[i] != "..")
-      ui->selectComboBox->addItem(dirList[i]);
-  }
-
-  // read name mapping xml
-  setLog("loading old name mappings...");
-  readMap();
-  QMapIterator<int, QString> it(names);
-  while (it.hasNext()) {
-    it.next();
-    setLog(QString::number(it.key()) + ": " + it.value());
-  }
+  // load peoples name
+  loadNameList();
+  // load the mapping of peoples name
+  loadNameMap();
 
   // register type for signal and slot
   qRegisterMetaType<QMap<int, QString> >();
@@ -89,11 +78,19 @@ void MainWindow::setImage() {
 void MainWindow::train() {
   // start training task asynchroniously
   if (trainingTask == nullptr) {
+    FeatureType featureType = classifier::LBP;
+    if (ui->rbLBP->isChecked()) {
+      featureType = classifier::LBP;
+    } else if (ui->rbLTP->isChecked()) {
+      featureType = classifier::LTP;
+    } else if (ui->rbCSLTP->isChecked()) {
+      featureType = classifier::CSLTP;
+    }
     trainingTask = new TrainingTask(FACE_IMAGE_DIR,
                                     MODEL_BASE_NAME,
                                     MODEL_EXTENSION,
                                     LOADING_PERCENT,
-                                    FEATURE_TYPE);
+                                    featureType);
     connect(trainingTask, SIGNAL(sendMessage(QString)),
             this, SLOT(setLog(QString)));
     connect(trainingTask,
@@ -317,5 +314,29 @@ void MainWindow::addTrainingData() {
                          "You need to take a picture first",
                          QMessageBox::Ok, QMessageBox::NoButton);
     setLog("warning!! you need to select who the target image is for");
+  }
+}
+
+void MainWindow::loadNameList() {
+  // scan image directory for people list
+  ui->selectComboBox->clear();
+  ui->selectComboBox->addItem(QString(SELECT));
+  QDir imageRoot(FACE_IMAGE_DIR);
+  imageRoot.setFilter(QDir::Dirs);
+  QStringList dirList = imageRoot.entryList();
+  for (int i = 0 ; i < dirList.count() ; i ++) {
+    if (dirList[i] != "." && dirList[i] != "..")
+      ui->selectComboBox->addItem(dirList[i]);
+  }
+}
+
+void MainWindow::loadNameMap() {
+  // read name mapping xml
+  setLog("loading old name mappings...");
+  readMap();
+  QMapIterator<int, QString> it(names);
+  while (it.hasNext()) {
+    it.next();
+    setLog(QString::number(it.key()) + ": " + it.value());
   }
 }
