@@ -139,6 +139,9 @@
          </item>
          <item>
           <layout class="QVBoxLayout" name="yesnoLayout">
+           <property name="bottomMargin">
+            <number>30</number>
+           </property>
            <item>
             <widget class="QLabel" name="whoLabel">
              <property name="minimumSize">
@@ -191,41 +194,53 @@
           </layout>
          </item>
          <item>
-          <widget class="QLabel" name="indicatorLabel">
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>36</height>
-            </size>
+          <layout class="QVBoxLayout" name="selectLayot">
+           <property name="bottomMargin">
+            <number>20</number>
            </property>
-           <property name="font">
-            <font>
-             <family>Sans</family>
-             <pointsize>14</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>If Not, Who are you?</string>
-           </property>
-          </widget>
+           <item>
+            <widget class="QLabel" name="indicatorLabel">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>36</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Sans</family>
+               <pointsize>14</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>If Not, Who are you?</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="selectComboBox">
+             <property name="font">
+              <font>
+               <family>Sans</family>
+               <pointsize>14</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
-          <widget class="QComboBox" name="selectComboBox">
-           <property name="font">
-            <font>
-             <family>Sans</family>
-             <pointsize>14</pointsize>
-            </font>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox">
+          <widget class="QGroupBox" name="radioGroup">
            <property name="maximumSize">
             <size>
              <width>16777215</width>
              <height>60</height>
             </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Sans</family>
+            </font>
            </property>
            <property name="title">
             <string>feature type:</string>
@@ -238,6 +253,11 @@
               <width>75</width>
               <height>22</height>
              </rect>
+            </property>
+            <property name="font">
+             <font>
+              <family>Sans</family>
+             </font>
             </property>
             <property name="text">
              <string>LBP</string>
@@ -252,6 +272,11 @@
               <height>22</height>
              </rect>
             </property>
+            <property name="font">
+             <font>
+              <family>Sans</family>
+             </font>
+            </property>
             <property name="text">
              <string>LTP</string>
             </property>
@@ -264,6 +289,11 @@
               <width>238</width>
               <height>22</height>
              </rect>
+            </property>
+            <property name="font">
+             <font>
+              <family>Sans</family>
+             </font>
             </property>
             <property name="text">
              <string>CSLTP</string>
