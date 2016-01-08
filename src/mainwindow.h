@@ -31,7 +31,7 @@
 #define VALUE_NAME "value"
 #define SELECT_TEXT "Select one..."
 #define INTERVAL 33
-#define PERCENT 0.80
+#define PERCENT 0.76
 
 using classifier::FaceClassifier;
 using classifier::FeatureType;
@@ -49,6 +49,8 @@ class MainWindow : public QMainWindow {
   ~MainWindow();
   void writeMap();
   void readMap();
+  void loadNameList();
+  void loadNameMap();
 
  public slots:
   void setImage();
@@ -86,7 +88,6 @@ class MainWindow : public QMainWindow {
   const char* SELECT = SELECT_TEXT;
   const int CAMEAR_INTERVAL = INTERVAL;
   const double LOADING_PERCENT = PERCENT;
-  const FeatureType FEATURE_TYPE = classifier::LBP;
 };
 
 #undef FACE_IMAGE_ROOT_DIR
