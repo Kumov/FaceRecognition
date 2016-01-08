@@ -27,7 +27,7 @@ class TrainingTask : public QThread {
                QString _modelBaseName,
                QString _modelExtension,
                double _loadingPercent,
-               FeatureType _featureType);
+               FeatureType _featureType = classifier::LBP);
   virtual ~TrainingTask();
   virtual void run();
 
