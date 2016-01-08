@@ -231,6 +231,12 @@
          </item>
          <item>
           <widget class="QGroupBox" name="radioGroup">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>60</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
@@ -245,59 +251,53 @@
            <property name="title">
             <string>feature type:</string>
            </property>
-           <widget class="QRadioButton" name="rbLBP">
+           <widget class="QWidget" name="horizontalLayoutWidget">
             <property name="geometry">
              <rect>
-              <x>10</x>
+              <x>6</x>
               <y>20</y>
-              <width>75</width>
-              <height>22</height>
+              <width>231</width>
+              <height>31</height>
              </rect>
             </property>
-            <property name="font">
-             <font>
-              <family>Sans</family>
-             </font>
-            </property>
-            <property name="text">
-             <string>LBP</string>
-            </property>
-           </widget>
-           <widget class="QRadioButton" name="rbLTP">
-            <property name="geometry">
-             <rect>
-              <x>80</x>
-              <y>20</y>
-              <width>115</width>
-              <height>22</height>
-             </rect>
-            </property>
-            <property name="font">
-             <font>
-              <family>Sans</family>
-             </font>
-            </property>
-            <property name="text">
-             <string>LTP</string>
-            </property>
-           </widget>
-           <widget class="QRadioButton" name="rbCSLTP">
-            <property name="geometry">
-             <rect>
-              <x>130</x>
-              <y>20</y>
-              <width>238</width>
-              <height>22</height>
-             </rect>
-            </property>
-            <property name="font">
-             <font>
-              <family>Sans</family>
-             </font>
-            </property>
-            <property name="text">
-             <string>CSLTP</string>
-            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <widget class="QRadioButton" name="rbLBP">
+               <property name="font">
+                <font>
+                 <family>Sans</family>
+                </font>
+               </property>
+               <property name="text">
+                <string>LBP</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="rbLTP">
+               <property name="font">
+                <font>
+                 <family>Sans</family>
+                </font>
+               </property>
+               <property name="text">
+                <string>LTP</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="rbCSLTP">
+               <property name="font">
+                <font>
+                 <family>Sans</family>
+                </font>
+               </property>
+               <property name="text">
+                <string>CSLTP</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </widget>
          </item>
