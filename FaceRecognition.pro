@@ -13,24 +13,26 @@ TEMPLATE = app
 
 CONFIG += c++11
 
-SOURCES += main.cpp\
-        mainwindow.cpp \
-    classifier.cpp \
-    common.cpp \
-    process.cpp \
-    opencvcamera.cpp \
-    imageviewer.cpp \
-    trainingtask.cpp
+SOURCES += src/main.cpp\
+           src/mainwindow.cpp \
+           src/classifier.cpp \
+           src/common.cpp \
+           src/process.cpp \
+           src/opencvcamera.cpp \
+           src/imageviewer.cpp \
+           src/trainingtask.cpp
 
-HEADERS  += mainwindow.h \
-    classifier.h \
-    common.h \
-    process.h \
-    opencvcamera.h \
-    imageviewer.h \
-    trainingtask.h
+HEADERS  += src/mainwindow.h \
+            src/classifier.h \
+            src/common.h \
+            src/process.h \
+            src/opencvcamera.h \
+            src/imageviewer.h \
+            src/trainingtask.h
 
-FORMS    += mainwindow.ui
+FORMS    += ui/mainwindow.ui
 
-unix:!macx: LIBS += -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_highgui -lopencv_ml -lopencv_videoio -lopencv_objdetect -fopenmp
+unix:!macx: LIBS += -lopencv_core -lopencv_imgproc -lopencv_imgcodecs \
+                    -lopencv_highgui -lopencv_ml -lopencv_videoio \
+                    -lopencv_objdetect -fopenmp
 unix:!macx: INCLUDEPATH += /usr/local/include
