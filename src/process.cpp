@@ -218,7 +218,7 @@ namespace process {
   }
 
   void computeCSLTP(Mat& image, Mat& csltp, int threshold) {
-    csltp = Mat::zeros(1, 256, CV_32FC1);
+    csltp = Mat::zeros(1, 121, CV_32FC1);
     Mat gray;
 
     if (image.channels() == 3) {
