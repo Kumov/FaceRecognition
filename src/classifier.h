@@ -191,6 +191,8 @@ class FaceClassifier : public QObject {
   void load(string modelPath);
   double testAccuracy();
   bool isLoaded();
+  void determineFeatureType();
+  FeatureType getFeatureType();
 
  signals:
   void sendMessage(QString message);
@@ -202,7 +204,7 @@ class FaceClassifier : public QObject {
   Ptr<SVM> svm;
   FaceClassifierType type;
   FaceClassifierKernelType kernelType;
-  FeatureType featureType = LBP;
+  FeatureType featureType;
   double gamma, c, nu, degree, coef0, p;
   double gammaCache;
   Mat trainingData, testingData;
