@@ -220,46 +220,56 @@
           </widget>
          </item>
          <item>
-          <layout class="QVBoxLayout" name="featureLayout">
-           <item>
-            <widget class="QLabel" name="featureTypeText">
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>30</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>feature type:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="featureRadioLayout">
-             <item>
-              <widget class="QRadioButton" name="rbLBP">
-               <property name="text">
-                <string>LBP</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="rbLTP">
-               <property name="text">
-                <string>LTP</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="rbCSLTP">
-               <property name="text">
-                <string>CSLTP</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>60</height>
+            </size>
+           </property>
+           <property name="title">
+            <string>feature type:</string>
+           </property>
+           <widget class="QRadioButton" name="rbLBP">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>20</y>
+              <width>75</width>
+              <height>22</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>LBP</string>
+            </property>
+           </widget>
+           <widget class="QRadioButton" name="rbLTP">
+            <property name="geometry">
+             <rect>
+              <x>80</x>
+              <y>20</y>
+              <width>115</width>
+              <height>22</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>LTP</string>
+            </property>
+           </widget>
+           <widget class="QRadioButton" name="rbCSLTP">
+            <property name="geometry">
+             <rect>
+              <x>130</x>
+              <y>20</y>
+              <width>238</width>
+              <height>22</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>CSLTP</string>
+            </property>
+           </widget>
+          </widget>
          </item>
          <item>
           <widget class="QPushButton" name="trainButton">
