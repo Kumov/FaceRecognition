@@ -738,6 +738,8 @@ void FaceClassifier::train() {
     this->gamma = this->gammaCache;
     this->setupSVM();
     this->svm->train(td);
+
+    determineFeatureType();
   } else {
 #ifdef DEBUG
     fprintf(stderr, "No training data and label prepared\n");
@@ -811,17 +813,14 @@ int FaceClassifier::predictImageSample(cv::Mat& imageSample) {
   resized = Mat::zeros(imageSize, imageSample.type());
   resize(imageSample, resized, imageSize);
 
-  switch (this->svm->getVarCount()) {
-    case 256:
-      this->featureType = LBP;
+  switch (this->featureType) {
+    case LBP:
       process::computeLBP(resized, sample);
       break;
-    case 9841:
-      this->featureType = LTP;
+    case LTP:
       process::computeLTP(resized, sample, 25);
       break;
-    case 121:
-      this->featureType = CSLTP;
+    case CSLTP:
       process::computeCSLTP(resized, sample, 25);
       break;
   }
@@ -851,6 +850,8 @@ int FaceClassifier::predictImageSample(cv::Mat& imageSample) {
 
 void FaceClassifier::load(string modelPath) {
   svm = StatModel::load<SVM>(modelPath);
+
+  determineFeatureType();
 }
 
 double FaceClassifier::testAccuracy() {
@@ -875,6 +876,24 @@ double FaceClassifier::testAccuracy() {
 
 bool FaceClassifier::isLoaded() {
   return svm->isTrained();
+}
+
+void FaceClassifier::determineFeatureType() {
+  switch (this->svm->getVarCount()) {
+    case 256:
+      this->featureType = LBP;
+      break;
+    case 9841:
+      this->featureType = LTP;
+      break;
+    case 121:
+      this->featureType = CSLTP;
+      break;
+  }
+}
+
+FeatureType FaceClassifier::getFeatureType() {
+  return this->featureType;
 }
 
 } // classifier namespace
