@@ -9,6 +9,10 @@
 #define DEFAULT_COEF0 0.1
 #define DEFAULT_P 0
 
+#define LBP_FEATURE_LENGTH 256
+#define LTP_FEATURE_LENGTH 9841
+#define CSLTP_FEATURE_LENGTH 121
+
 #undef MIN
 #define MIN(n1, n2) (n1 < n2 ? n1 : n2)
 
@@ -64,13 +68,13 @@ void TrainingDataLoader::load(Mat& trainingData,
   uint32_t featureLength = 0;
   switch (featureType) {
     case LBP:
-      featureLength = 256;
+      featureLength = LBP_FEATURE_LENGTH;
       break;
     case LTP:
-      featureLength = 9841;
+      featureLength = LTP_FEATURE_LENGTH;
       break;
     case CSLTP:
-      featureLength = 121;
+      featureLength = CSLTP_FEATURE_LENGTH;
       break;
   }
 
@@ -322,13 +326,13 @@ void loadTrainingData(LoadingParams params,
   uint32_t featureLength = 0;
   switch (featureType) {
     case LBP:
-      featureLength = 256;
+      featureLength = LBP_FEATURE_LENGTH;
       break;
     case LTP:
-      featureLength = 9841;
+      featureLength = LTP_FEATURE_LENGTH;
       break;
     case CSLTP:
-      featureLength = 121;
+      featureLength = CSLTP_FEATURE_LENGTH;
       break;
   }
 
@@ -880,13 +884,13 @@ bool FaceClassifier::isLoaded() {
 
 void FaceClassifier::determineFeatureType() {
   switch (this->svm->getVarCount()) {
-    case 256:
+    case LBP_FEATURE_LENGTH:
       this->featureType = LBP;
       break;
-    case 9841:
+    case LTP_FEATURE_LENGTH:
       this->featureType = LTP;
       break;
-    case 121:
+    case CSLTP_FEATURE_LENGTH:
       this->featureType = CSLTP;
       break;
   }
