@@ -70,7 +70,7 @@ void TrainingDataLoader::load(Mat& trainingData,
       featureLength = 9841;
       break;
     case CSLTP:
-      featureLength = 81;
+      featureLength = 121;
       break;
   }
 
@@ -328,7 +328,7 @@ void loadTrainingData(LoadingParams params,
       featureLength = 9841;
       break;
     case CSLTP:
-      featureLength = 81;
+      featureLength = 121;
       break;
   }
 
@@ -811,14 +811,17 @@ int FaceClassifier::predictImageSample(cv::Mat& imageSample) {
   resized = Mat::zeros(imageSize, imageSample.type());
   resize(imageSample, resized, imageSize);
 
-  switch (featureType) {
-    case LBP:
+  switch (this->svm->getVarCount()) {
+    case 256:
+      this->featureType = LBP;
       process::computeLBP(resized, sample);
       break;
-    case LTP:
+    case 9841:
+      this->featureType = LTP;
       process::computeLTP(resized, sample, 25);
       break;
-    case CSLTP:
+    case 121:
+      this->featureType = CSLTP;
       process::computeCSLTP(resized, sample, 25);
       break;
   }
@@ -832,6 +835,10 @@ int FaceClassifier::predictImageSample(cv::Mat& imageSample) {
 
   // if the svm is train then predict the sample
   if (this->svm->isTrained()) {
+#ifdef QT_DEBUG
+      cout << "feature length: " << this->svm->getVarCount() << endl;
+      cout << "sample length: " << sample.cols << endl;
+#endif
       return this->svm->predict(sample);
   } else {
 #ifdef DEBUG
