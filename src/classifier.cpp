@@ -61,8 +61,11 @@ void TrainingDataLoader::load(Mat& trainingData,
   cout << "trainingSize: " << trainingSize << endl;
   cout << "testingSize: " << testingSize << endl;
 #endif
+
+#ifdef QT_DEBUG
   sendMessage(QString("training size: ") +
               QString::number(trainingSize));
+#endif
 
   // prepare the matrix for training
   uint32_t featureLength = 0;
@@ -693,17 +696,17 @@ void FaceClassifier::train() {
           break;
         case POLY:
           l = log10(this->gamma);
-          l -= 0.1;
+          l -= TRAINING_STEP;
           this->gamma = pow(10, l);
           break;
         case RBF:
           l = log10(this->gamma);
-          l -= 0.1;
+          l -= TRAINING_STEP;
           this->gamma = pow(10, l);
           break;
         case SIGMOID:
           l = log10(this->gamma);
-          l -= 0.1;
+          l -= TRAINING_STEP;
           this->gamma = pow(10, l);
           break;
       }
@@ -739,17 +742,17 @@ void FaceClassifier::train() {
           break;
         case POLY:
           l = log10(this->gamma);
-          l += 0.1;
+          l += TRAINING_STEP;
           this->gamma = pow(10, l);
           break;
         case RBF:
           l = log10(this->gamma);
-          l += 0.1;
+          l += TRAINING_STEP;
           this->gamma = pow(10, l);
           break;
         case SIGMOID:
           l = log10(this->gamma);
-          l += 0.1;
+          l += TRAINING_STEP;
           this->gamma = pow(10, l);
           break;
       }
@@ -874,7 +877,7 @@ int FaceClassifier::predictImageSample(cv::Mat& imageSample) {
 
   // if the svm is train then predict the sample
   if (this->svm->isTrained()) {
-#ifdef QT_DEBUG
+#ifdef DEBUG
       cout << "feature length: " << this->svm->getVarCount() << endl;
       cout << "sample length: " << sample.cols << endl;
 #endif
