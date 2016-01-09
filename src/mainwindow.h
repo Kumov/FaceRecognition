@@ -49,6 +49,7 @@ class MainWindow : public QMainWindow {
   ~MainWindow();
   void writeMap();
   void readMap();
+  void loadClassifier(QString modelPath);
   void loadNameList();
   void loadNameMap();
 
