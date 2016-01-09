@@ -1,9 +1,6 @@
 #include "opencvcamera.h"
 
 OpenCVCamera::OpenCVCamera() {
-#ifdef QT_DEBUG
-  cout << "starting VideoCapture" << endl;
-#endif
   if (!capture.isOpened()) {
     capture = VideoCapture(0);
   }
