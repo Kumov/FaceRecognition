@@ -62,6 +62,7 @@ class MainWindow : public QMainWindow {
   void resume();
   void setLog(QString log);
   void addTrainingData();
+  void addNewPerson();
 
  private:
   Ui::MainWindow *ui = nullptr;
