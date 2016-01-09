@@ -127,8 +127,7 @@ void MainWindow::trainingComplete(QString modelPath,
     setLog("new model copied");
 
     // load the new model
-    faceClassifier->load(target.toStdString());
-    setLog("new model loaded");
+    loadClassifier(target);
 
     // output new name map
     this->names = names;
@@ -155,7 +154,7 @@ void MainWindow::takePicture() {
     if (!faceClassifier->isLoaded()) {
       QString modelPath = QString(MODEL_BASE_NAME) +
           QString(MODEL_EXTENSION);
-      faceClassifier->load(modelPath.toStdString());
+      this->loadClassifier(modelPath);
       setLog("loading face classifier " + modelPath + "...");
     }
 
@@ -167,7 +166,11 @@ void MainWindow::takePicture() {
     while (it.hasNext()) {
       it.next();
       if (it.key() == result) {
-        ui->whoLabel->setText("Are you " + it.value());
+        if (it.value() == QString(BG_IMAGE_DIR)) {
+          ui->whoLabel->setText("We don't recognize you!!!");
+        } else {
+          ui->whoLabel->setText("Are you " + it.value());
+        }
         break;
       }
     }
@@ -339,4 +342,25 @@ void MainWindow::loadNameMap() {
     it.next();
     setLog(QString::number(it.key()) + ": " + it.value());
   }
+}
+
+void MainWindow::loadClassifier(QString modelPath) {
+    this->faceClassifier->load(modelPath.toStdString());
+    setLog("model loaded");
+    // set current feature
+    FeatureType featureType = faceClassifier->getFeatureType();
+    switch (featureType) {
+      case classifier::LBP:
+        setLog("model uses LBP");
+        ui->statusBar->showMessage("current feature: LBP");
+        break;
+      case classifier::LTP:
+        setLog("model uses LTP");
+        ui->statusBar->showMessage("current feature: LTP");
+        break;
+      case classifier::CSLTP:
+        setLog("model uses CSLTP");
+        ui->statusBar->showMessage("current feature: CSLTP");
+        break;
+    }
 }
