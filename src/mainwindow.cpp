@@ -32,6 +32,11 @@ MainWindow::MainWindow(QWidget *parent) :
           this, SLOT(resume()));
   connect(ui->noButton, SIGNAL(pressed()),
           this, SLOT(addTrainingData()));
+  connect(ui->addButton, SIGNAL(pressed()),
+          this, SLOT(addNewPerson()));
+
+  // menu event
+
   // face classifier message capture
   connect(faceClassifier, SIGNAL(sendMessage(QString)),
           this, SLOT(setLog(QString)));
@@ -363,4 +368,20 @@ void MainWindow::loadClassifier(QString modelPath) {
         ui->statusBar->showMessage("current feature: CSLTP");
         break;
     }
+}
+
+void MainWindow::addNewPerson() {
+  QString name = ui->leNew->text();
+  if (!name.isNull() && name.length() != 0) {
+    QDir imageRoot(FACE_IMAGE_DIR);
+    imageRoot.mkpath(QString(".") + QDir::separator() + name);
+
+    // reload name list
+    this->loadNameList();
+    setLog(name + " is added to image root directory");
+  } else {
+    QMessageBox::information(this, "Error!!", "Need to specify a new name",
+                             QMessageBox::Ok);
+    setLog("need to specify a new name!!");
+  }
 }
