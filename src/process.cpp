@@ -80,7 +80,7 @@ namespace process {
   }
 
   void computeLBP(Mat& image, Mat& lbp) {
-    lbp = Mat::zeros(1, 256, CV_32FC1);
+    lbp = Mat::zeros(1, LBP_FEATURE_LENGTH, CV_32FC1);
     Mat gray;
 
     if (image.channels() == 3) {
@@ -126,7 +126,7 @@ namespace process {
 
   void computeLTP(Mat& image, Mat& ltp, int threshold) {
     Mat gray;
-    ltp = Mat::zeros(1, 9841, CV_32FC1);
+    ltp = Mat::zeros(1, LTP_FEATURE_LENGTH, CV_32FC1);
 
     // convert to gray image
     if (image.channels() == 3) {
@@ -218,7 +218,7 @@ namespace process {
   }
 
   void computeCSLTP(Mat& image, Mat& csltp, int threshold) {
-    csltp = Mat::zeros(1, 121, CV_32FC1);
+    csltp = Mat::zeros(1, CSLTP_FEATURE_LENGTH, CV_32FC1);
     Mat gray;
 
     if (image.channels() == 3) {
