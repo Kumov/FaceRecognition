@@ -211,9 +211,10 @@ class FaceClassifier : public QObject {
   Mat trainingLabel, testingLabel;
   Size imageSize;
   const string MODEL_OUTPUT = "facemodel.xml";
-  const double TEST_ACCURACY_REQUIREMENT = 0.96;
+  const double TEST_ACCURACY_REQUIREMENT = 0.960;
   const double TEST_PERCENT = 0.1;
-  const unsigned long long int MAX_ITERATION = 100;
+  const unsigned long long int MAX_ITERATION = 300;
+  const double TRAINING_STEP = 0.05;
 };
 
 typedef struct FaceClassifierParams {
