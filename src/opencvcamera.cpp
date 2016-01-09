@@ -11,9 +11,6 @@ OpenCVCamera::OpenCVCamera() {
   cout << "init VideoCapture" << endl;
 #endif
   faceFinder = CascadeClassifier(FACE_FINDER_MODEL);
-#ifdef QT_DEBUG
-  cout << "init Classifier" << endl;
-#endif
 }
 
 OpenCVCamera::~OpenCVCamera() {
