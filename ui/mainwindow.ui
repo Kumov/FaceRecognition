@@ -58,7 +58,7 @@
      <widget class="QWidget" name="controlWidget" native="true">
       <property name="maximumSize">
        <size>
-        <width>260</width>
+        <width>360</width>
         <height>16777215</height>
        </size>
       </property>
@@ -71,8 +71,8 @@
             <widget class="QWidget" name="faceWidget" native="true">
              <property name="minimumSize">
               <size>
-               <width>60</width>
-               <height>60</height>
+               <width>120</width>
+               <height>120</height>
               </size>
              </property>
              <layout class="QGridLayout" name="gridLayout_3">
@@ -271,6 +271,9 @@
                <property name="text">
                 <string>LBP</string>
                </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item>
@@ -327,11 +330,62 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>21</height>
+     <height>24</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Sans</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <widget class="QMenu" name="menuModel">
+    <property name="font">
+     <font>
+      <family>Sans</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="title">
+     <string>Model</string>
+    </property>
+    <addaction name="actionAdd_new_person"/>
+    <addaction name="separator"/>
+    <addaction name="actionExport"/>
+    <addaction name="actionImport"/>
+    <addaction name="separator"/>
+    <addaction name="actionTrain"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <addaction name="menuModel"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionAdd_new_person">
+   <property name="text">
+    <string>Add new person</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>Export</string>
+   </property>
+  </action>
+  <action name="actionImport">
+   <property name="text">
+    <string>Import</string>
+   </property>
+  </action>
+  <action name="actionTrain">
+   <property name="text">
+    <string>Train</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
