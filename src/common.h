@@ -19,8 +19,8 @@
 #include <windows.h>
 #endif
 
-#define   CURRENT_DIR   "."
-#define   PARENT_DIR    ".."
+const char* CURRENT_DIR = ".";
+const char* PARENT_DIR = "..";
 
 // separator
 #if defined(__unix__)
@@ -28,15 +28,6 @@
 #elif defined(__WIN32)
 // windows implementation ...
 #define   SEPARATOR     "\\"
-#endif
-
-// premade classifier data
-#if defined(__unix__)
-#define CLASSIFIER_DATA	\
-	"/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt2.xml"
-#elif defined(__WIN32)
-// windows implementation ...
-#define CLASSIFIER_DATA "some location here..."
 #endif
 
 #define VECTOR_FILE "face.vec"
