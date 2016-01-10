@@ -107,7 +107,9 @@ class TrainingDataLoader : public QObject {
   Size imageSize;
 };
 
-// loading functions
+// old function for loading training data
+// should use the TrainingDataLoader class and
+// specify LoadingParams for loading data
 void loadTrainingData(LoadingParams params,
                       Mat& trainingData,
                       Mat& trainingLabel,
