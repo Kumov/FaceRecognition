@@ -94,6 +94,7 @@ void MainWindow::train() {
     trainingTask = new TrainingTask(FACE_IMAGE_DIR,
                                     MODEL_BASE_NAME,
                                     MODEL_EXTENSION,
+                                    MODEL_BASE_DIR,
                                     LOADING_PERCENT,
                                     featureType);
     connect(trainingTask, SIGNAL(sendMessage(QString)),
@@ -123,8 +124,11 @@ void MainWindow::trainingComplete(QString modelPath,
     trainingTask = nullptr;
     setLog("training complete");
     setLog("new model written: " + modelPath);
+
     // copy to target
-    QString target = QString(MODEL_BASE_NAME) + QString(MODEL_EXTENSION);
+    QString target = QString(MODEL_BASE_DIR) +
+        QDir::separator() + QString(MODEL_BASE_NAME) +
+        QString(MODEL_EXTENSION);
     if (QFile::exists(target)) {
       QFile::remove(target);
     }
