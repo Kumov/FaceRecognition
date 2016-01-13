@@ -20,6 +20,7 @@
 #define FACE_IMAGE_ROOT_DIR "faces"
 #define FACE_MODEL_BASE_NAME "facemodel"
 #define FACE_MODEL_EXTENSION ".xml"
+#define FACE_MODEL_BASE_DIR "svmmodel"
 #define BACKGROUND_IMAGE_DIR "bg"
 #define POSITIVE_DIRECTORY "pos"
 #define NEGATIVE_DIRECTORY "neg"
@@ -78,6 +79,7 @@ class MainWindow : public QMainWindow {
   const char* FACE_IMAGE_DIR = FACE_IMAGE_ROOT_DIR;
   const char* MODEL_BASE_NAME = FACE_MODEL_BASE_NAME;
   const char* MODEL_EXTENSION = FACE_MODEL_EXTENSION;
+  const char* MODEL_BASE_DIR = FACE_MODEL_BASE_DIR;
   const char* BG_IMAGE_DIR = BACKGROUND_IMAGE_DIR;
   const char* POS_DIR = POSITIVE_DIRECTORY;
   const char* NEG_DIR = NEGATIVE_DIRECTORY;
