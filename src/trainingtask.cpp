@@ -3,11 +3,13 @@
 TrainingTask::TrainingTask(QString _faceImageDirectory,
                            QString _modelBaseName,
                            QString _modelExtension,
+                           QString _modelBasePath,
                            double _loadingPercent,
                            FeatureType _featureType) {
   faceImageDirectory = _faceImageDirectory;
   modelBaseName = _modelBaseName;
   modelExtension = _modelExtension;
+  modelBasePath = _modelBasePath;
   loadingPercent = _loadingPercent;
   featureType = _featureType;
 }
@@ -28,11 +30,19 @@ void TrainingTask::run() {
     imageRoot.mkpath(".");
   }
 
-  // get current time stamp
+  // get current time stamp and compute current model path
   QDateTime currenTime = QDateTime::currentDateTime();
-  currentModelPath = QString(modelBaseName) +
-          QString::number(currenTime.toTime_t()) +
-          QString(modelExtension);
+
+  // create the base directory if not exist
+  QDir modelBaseDirectory(modelBasePath);
+  if (!modelBaseDirectory.exists()) {
+    modelBaseDirectory.mkpath(".");
+  }
+  currentModelPath = modelBasePath +
+      QDir::separator() +
+      QString(modelBaseName) +
+      QString::number(currenTime.toTime_t()) +
+      QString(modelExtension);
   sendMessage("current model path: " + currentModelPath);
 
   sendMessage("loading training data...");
