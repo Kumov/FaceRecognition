@@ -71,8 +71,8 @@
             <widget class="QWidget" name="faceWidget" native="true">
              <property name="minimumSize">
               <size>
-               <width>120</width>
-               <height>120</height>
+               <width>160</width>
+               <height>160</height>
               </size>
              </property>
              <layout class="QGridLayout" name="gridLayout_3">

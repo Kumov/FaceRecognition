@@ -26,6 +26,7 @@ class TrainingTask : public QThread {
   TrainingTask(QString _faceImageDirectory,
                QString _modelBaseName,
                QString _modelExtension,
+               QString _modelBasePath,
                double _loadingPercent,
                FeatureType _featureType = classifier::LBP);
   virtual ~TrainingTask();
@@ -40,7 +41,7 @@ class TrainingTask : public QThread {
 
  private:
   QString faceImageDirectory, modelBaseName, modelExtension;
-  QString currentModelPath;
+  QString currentModelPath, modelBasePath;
   double loadingPercent;
   FeatureType featureType;
   map<int, string> names;
