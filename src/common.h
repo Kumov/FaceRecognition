@@ -12,6 +12,8 @@
 
 using std::string;
 using std::vector;
+using std::ifstream;
+using std::ios;
 
 #if defined(__unix__)
 #include <dirent.h>
