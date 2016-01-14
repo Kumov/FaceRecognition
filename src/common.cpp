@@ -1,7 +1,5 @@
 #include "common.h"
 
-using namespace std;
-
 static bool contain(const vector<string> data, const char* s) {
   for (uint32_t i = 0 ; i < data.size(); i ++) {
     if (strcmp(s, data[i].c_str()) == 0)
