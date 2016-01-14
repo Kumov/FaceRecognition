@@ -1,6 +1,6 @@
 language: cpp
 
-script: 
+script:
   - qmake -qt=qt4 -v
   - qmake -qt=qt4
   - make
