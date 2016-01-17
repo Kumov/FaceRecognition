@@ -172,17 +172,8 @@ class FaceClassifier : public QObject {
 
   FaceClassifier();
   explicit FaceClassifier(struct FaceClassifierParams param);
-  FaceClassifier(double gamma, double c, double nu,
-                 double degree, double coef0, double p,
-                 FaceClassifierType type,
-                 FaceClassifierKernelType kernelType,
-                 Size size);
-  FaceClassifier(double gamma, double c, double nu,
-                 double degree, double coef0, double p,
-                 FaceClassifierType type,
-                 FaceClassifierKernelType kernelType,
-                 Mat& data, Mat& label,
-                 Size size);
+  FaceClassifier(struct FaceClassifierParams param,
+                 Mat& data, Mat& label);
   virtual ~FaceClassifier() {}
   void saveModel();
   void saveModel(string modelPath);
@@ -201,6 +192,7 @@ class FaceClassifier : public QObject {
 
  protected:
   void setupSVM();
+  void setupTrainingData(Mat& data, Mat& label);
 
  private:
   Ptr<SVM> svm;
@@ -209,6 +201,7 @@ class FaceClassifier : public QObject {
   FeatureType featureType;
   double gamma, c, nu, degree, coef0, p;
   double gammaCache;
+  double trainingStep;
   Mat trainingData, testingData;
   Mat trainingLabel, testingLabel;
   Size imageSize;
@@ -216,7 +209,6 @@ class FaceClassifier : public QObject {
   const double TEST_ACCURACY_REQUIREMENT = 0.960;
   const double TEST_PERCENT = 0.1;
   const unsigned long long int MAX_ITERATION = 300;
-  const double TRAINING_STEP = 0.05;
 };
 
 typedef struct FaceClassifierParams {
@@ -226,6 +218,7 @@ typedef struct FaceClassifierParams {
   double degree;
   double coef0;
   double p;
+  double trainingStep;
   FaceClassifier::FaceClassifierType type;
   FaceClassifier::FaceClassifierKernelType kernelType;
   Size imageSize;
@@ -239,9 +232,12 @@ typedef struct FaceClassifierParams {
     p = 0;
     type = FaceClassifier::C_SVC;
     kernelType = FaceClassifier::LINEAR;
+    trainingStep = 0.05;
   }
 
-  FaceClassifierParams(Size size, double _gamma) {
+  FaceClassifierParams(Size size,
+                       double _gamma,
+                       double _trainingStep) {
     gamma = _gamma;
     c = 1.0;
     nu = 1.0;
@@ -251,6 +247,7 @@ typedef struct FaceClassifierParams {
     type = FaceClassifier::C_SVC;
     kernelType = FaceClassifier::RBF;
     imageSize = size;
+    trainingStep = _trainingStep;
   }
 } FaceClassifierParams;
 
