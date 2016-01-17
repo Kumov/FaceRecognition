@@ -34,6 +34,9 @@ MainWindow::MainWindow(QWidget *parent) :
           this, SLOT(addTrainingData()));
   connect(ui->addButton, SIGNAL(pressed()),
           this, SLOT(addNewPerson()));
+  // slider event
+  connect(ui->tssSlider, SIGNAL(valueChanged(int)),
+          this, SLOT(adjustTrainingStep(int)));
 
   // menu event
 
@@ -91,11 +94,40 @@ void MainWindow::train() {
     } else if (ui->rbCSLTP->isChecked()) {
       featureType = classifier::CSLTP;
     }
+
+    // get training parameter
+    double imageSize = IMAGE_SIZE;
+    double trainingStep = TRAINING_STEP;
+    bool success = true;
+    // training image size
+    if (ui->imageSizeEdit->text().length() == 0) {
+      ui->imageSizeEdit->setText(QString::number(imageSize));
+    } else {
+      imageSize = ui->imageSizeEdit->text().toDouble(&success);
+      if (!success) {
+        ui->imageSizeEdit->setText(QString::number(imageSize));
+        imageSize = IMAGE_SIZE;
+      }
+    }
+
+    // training step
+    if (ui->tssLabel->text().length() == 0) {
+      ui->tssLabel->setText(QString::number(trainingStep));
+    } else {
+      trainingStep = ui->tssLabel->text().toDouble(&success);
+      if (!success) {
+        ui->tssLabel->setText(QString::number(trainingStep));
+        trainingStep = TRAINING_STEP;
+      }
+    }
+
+    // init training task
     trainingTask = new TrainingTask(FACE_IMAGE_DIR,
                                     MODEL_BASE_NAME,
                                     MODEL_EXTENSION,
                                     MODEL_BASE_DIR,
                                     LOADING_PERCENT,
+                                    imageSize, trainingStep,
                                     featureType);
     connect(trainingTask, SIGNAL(sendMessage(QString)),
             this, SLOT(setLog(QString)));
@@ -389,4 +421,15 @@ void MainWindow::addNewPerson() {
                              QMessageBox::Ok);
     setLog("need to specify a new name!!");
   }
+}
+
+void MainWindow::adjustTrainingStep(int value) {
+  const double left = LEFT;
+  const double delta = DELTA;
+  const double logValue = left - value * delta;
+  const double step = pow(10, logValue);
+
+  QString stepDisplay;
+  stepDisplay.sprintf("%.6lf", step);
+  ui->tssLabel->setText(stepDisplay);
 }
