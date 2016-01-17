@@ -5,12 +5,16 @@ TrainingTask::TrainingTask(QString _faceImageDirectory,
                            QString _modelExtension,
                            QString _modelBasePath,
                            double _loadingPercent,
+                           double _size,
+                           double _trainingStep,
                            FeatureType _featureType) {
   faceImageDirectory = _faceImageDirectory;
   modelBaseName = _modelBaseName;
   modelExtension = _modelExtension;
   modelBasePath = _modelBasePath;
   loadingPercent = _loadingPercent;
+  trainingStep = _trainingStep;
+  trainingSize = Size(_size, _size);
   featureType = _featureType;
 }
 
@@ -49,27 +53,29 @@ void TrainingTask::run() {
   // prepare loading parameters
   LoadingParams params(faceImageDirectory.toStdString(),
                        loadingPercent,
-                       featureType, Size(64, 64));
+                       featureType, trainingSize);
   // load the images into matrix
   TrainingDataLoader loader(params);
   connect(&loader, SIGNAL(sendMessage(QString)), this,
           SLOT(captureMessage(QString)));
   loader.load(trainingData, trainingLabel, names);
+  // old way to load data
   // loadTrainingData(params, trainingData, trainingLabel, names);
   sendMessage("training data loaded");
 
   // training
   if (faceClassifier == nullptr) {
     sendMessage("creating trainer...");
-    faceClassifier = new FaceClassifier(1, 1, 0, 1, 0, 0,
-                                        FaceClassifier::C_SVC,
-                                        FaceClassifier::RBF,
+    FaceClassifierParams classifierParam(trainingSize,
+                                         1.0, trainingStep);
+    faceClassifier = new FaceClassifier(classifierParam,
                                         trainingData,
-                                        trainingLabel,
-                                        Size(64, 64));
+                                        trainingLabel);
+
     // connect log message from training task
     connect(faceClassifier, SIGNAL(sendMessage(QString)),
             this, SLOT(captureMessage(QString)));
+
     sendMessage("training started...");
     faceClassifier->train();
     sendMessage("saving model...");
