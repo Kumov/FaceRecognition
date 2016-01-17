@@ -17,6 +17,10 @@
 #define DEFAULT_BG_DIR "bg"
 #define DEFAULT_POS_DIR "/pos"
 #define DEFAULT_NEG_DIR "/neg"
+#define DEFAULT_TEST_PERCENT 0.1
+#define ACCURACY_REQUIREMENT 0.966
+#define DEFAULT_TRAINING_STEP 0.05
+#define ITERATION 1000
 
 #ifdef QT_DEBUG
 using std::cout;
@@ -201,14 +205,13 @@ class FaceClassifier : public QObject {
   FeatureType featureType;
   double gamma, c, nu, degree, coef0, p;
   double gammaCache;
-  double trainingStep;
+  double trainingStep, testPercent;
   Mat trainingData, testingData;
   Mat trainingLabel, testingLabel;
   Size imageSize;
   const string MODEL_OUTPUT = "facemodel.xml";
-  const double TEST_ACCURACY_REQUIREMENT = 0.960;
-  const double TEST_PERCENT = 0.1;
-  const unsigned long long int MAX_ITERATION = 300;
+  const double TEST_ACCURACY_REQUIREMENT = ACCURACY_REQUIREMENT;
+  const unsigned long long int MAX_ITERATION = ITERATION;
 };
 
 typedef struct FaceClassifierParams {
@@ -222,6 +225,7 @@ typedef struct FaceClassifierParams {
   FaceClassifier::FaceClassifierType type;
   FaceClassifier::FaceClassifierKernelType kernelType;
   Size imageSize;
+  double testingPercent;
 
   FaceClassifierParams() {
     gamma = 1.0;
@@ -232,12 +236,14 @@ typedef struct FaceClassifierParams {
     p = 0;
     type = FaceClassifier::C_SVC;
     kernelType = FaceClassifier::LINEAR;
-    trainingStep = 0.05;
+    trainingStep = DEFAULT_TRAINING_STEP;
+    testingPercent = DEFAULT_TEST_PERCENT;
   }
 
   FaceClassifierParams(Size size,
                        double _gamma,
-                       double _trainingStep) {
+                       double _trainingStep,
+                       double _testingPercent) {
     gamma = _gamma;
     c = 1.0;
     nu = 1.0;
@@ -248,6 +254,11 @@ typedef struct FaceClassifierParams {
     kernelType = FaceClassifier::RBF;
     imageSize = size;
     trainingStep = _trainingStep;
+    if (_testingPercent < 1.0 && _testingPercent > 0) {
+      testingPercent = _testingPercent;
+    } else {
+      testingPercent = DEFAULT_TEST_PERCENT;
+    }
   }
 } FaceClassifierParams;
 
