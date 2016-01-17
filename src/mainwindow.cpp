@@ -161,7 +161,8 @@ void MainWindow::takePicture() {
   pictureTaken = true;
   if (faceClassifier != nullptr) {
     if (!faceClassifier->isLoaded()) {
-      QString modelPath = QString(MODEL_BASE_NAME) +
+      QString modelPath = QString(MODEL_BASE_DIR) +
+          QDir::separator() + QString(MODEL_BASE_NAME) +
           QString(MODEL_EXTENSION);
       this->loadClassifier(modelPath);
       setLog("loading face classifier " + modelPath + "...");
