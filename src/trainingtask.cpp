@@ -67,7 +67,8 @@ void TrainingTask::run() {
   if (faceClassifier == nullptr) {
     sendMessage("creating trainer...");
     FaceClassifierParams classifierParam(trainingSize,
-                                         1.0, trainingStep);
+                                         1.0, trainingStep,
+                                         1.0 - loadingPercent);
     faceClassifier = new FaceClassifier(classifierParam,
                                         trainingData,
                                         trainingLabel);
