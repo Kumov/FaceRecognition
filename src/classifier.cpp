@@ -510,8 +510,28 @@ FaceClassifier::FaceClassifier(FaceClassifierParams param) {
   this->p = param.p;
 
   this->imageSize = param.imageSize;
+  this->trainingStep = param.trainingStep;
 
   this->setupSVM();
+}
+
+FaceClassifier::FaceClassifier(FaceClassifierParams param,
+                               Mat &data, Mat &label) {
+  this->type = param.type;
+  this->kernelType = param.kernelType;
+
+  this->gamma = param.gamma;
+  this->c = param.c;
+  this->nu = param.nu;
+  this->degree = param.degree;
+  this->coef0 = param.coef0;
+  this->p = param.p;
+
+  this->imageSize = param.imageSize;
+  this->trainingStep = param.trainingStep;
+
+  this->setupSVM();
+  this->setupTrainingData(data, label);
 }
 
 void FaceClassifier::setupSVM() {
@@ -583,52 +603,16 @@ void FaceClassifier::setupSVM() {
   this->svm->setP(this->p);
 }
 
-FaceClassifier::FaceClassifier(double gamma, double c, double nu,
-                               double degree, double coef0, double p,
-                               FaceClassifierType type,
-                               FaceClassifierKernelType kernelType,
-                               Size size) {
-  this->type = type;
-  this->kernelType = kernelType;
-
-  this->gamma = gamma;
-  this->c = c;
-  this->nu = nu;
-  this->degree = degree;
-  this->coef0 = coef0;
-  this->p = p;
-  this->imageSize = size;
-
-  this->setupSVM();
-}
-
-FaceClassifier::FaceClassifier(double gamma, double c, double nu,
-                               double degree, double coef0, double p,
-                               FaceClassifierType type,
-                               FaceClassifierKernelType kernelType,
-                               Mat& data, Mat& label,
-                               Size size) {
-  this->type = type;
-  this->kernelType = kernelType;
-
-  this->gamma = gamma;
-  this->c = c;
-  this->nu = nu;
-  this->degree = degree;
-  this->coef0 = coef0;
-  this->p = p;
-  this->imageSize = size;
-
-  this->setupSVM();
-
-  size_t testingSize = data.rows * TEST_PERCENT > 1 ? data.rows * TEST_PERCENT : 1;
+void FaceClassifier::setupTrainingData(Mat &data, Mat &label) {
+  size_t testingSize = data.rows * TEST_PERCENT > 1 ?
+        data.rows * TEST_PERCENT : 1;
   size_t trainingSize = data.rows - testingSize;
 
   if (data.type() == CV_32FC1 && label.type() == CV_32SC1) {
-    trainingData = cv::Mat(trainingSize, data.cols, data.type());
-    testingData = cv::Mat(testingSize, data.cols, data.type());
-    trainingLabel = cv::Mat(trainingSize, label.cols, label.type());
-    testingLabel = cv::Mat(testingSize, label.cols, label.type());
+    trainingData = Mat::zeros(trainingSize, data.cols, data.type());
+    testingData = Mat::zeros(testingSize, data.cols, data.type());
+    trainingLabel = Mat::zeros(trainingSize, label.cols, label.type());
+    testingLabel = Mat::zeros(testingSize, label.cols, label.type());
 
     for (int i = 0 ; i < trainingData.rows ; i ++) {
       for (int j = 0 ; j < trainingData.cols ; j ++) {
@@ -692,21 +676,22 @@ void FaceClassifier::train() {
           break;
         case POLY:
           l = log10(this->gamma);
-          l -= TRAINING_STEP;
+          l -= trainingStep;
           this->gamma = pow(10, l);
           break;
         case RBF:
           l = log10(this->gamma);
-          l -= TRAINING_STEP;
+          l -= trainingStep;
           this->gamma = pow(10, l);
           break;
         case SIGMOID:
           l = log10(this->gamma);
-          l -= TRAINING_STEP;
+          l -= trainingStep;
           this->gamma = pow(10, l);
           break;
       }
       this->setupSVM();
+
       sendMessage(QString("test accuracy: ") + QString::number(accuracy) +
                   QString(" | gamma = ") + QString::number(this->gamma) +
                   QString(" | continue to update..."));
@@ -738,17 +723,17 @@ void FaceClassifier::train() {
           break;
         case POLY:
           l = log10(this->gamma);
-          l += TRAINING_STEP;
+          l += trainingStep;
           this->gamma = pow(10, l);
           break;
         case RBF:
           l = log10(this->gamma);
-          l += TRAINING_STEP;
+          l += trainingStep;
           this->gamma = pow(10, l);
           break;
         case SIGMOID:
           l = log10(this->gamma);
-          l += TRAINING_STEP;
+          l += trainingStep;
           this->gamma = pow(10, l);
           break;
       }
