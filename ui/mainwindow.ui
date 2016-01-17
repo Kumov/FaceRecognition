@@ -252,6 +252,9 @@
                <height>20</height>
               </size>
              </property>
+             <property name="text">
+              <string>64</string>
+             </property>
             </widget>
            </item>
           </layout>
