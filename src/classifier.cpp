@@ -8,6 +8,9 @@
 #define DEFAULT_DEGREE 2
 #define DEFAULT_COEF0 0.1
 #define DEFAULT_P 0
+#define DEFAULT_IMAGE_SIZE 64
+
+#define LTP_THRESHOLD 25
 
 #undef MIN
 #define MIN(n1, n2) (n1 < n2 ? n1 : n2)
@@ -135,11 +138,11 @@ void TrainingDataLoader::load(Mat& trainingData,
             processingType = "LBP";
             break;
           case LTP:
-            process::computeLTP(resized, X, 25);
+            process::computeLTP(resized, X, LTP_THRESHOLD);
             processingType = "LTP";
             break;
           case CSLTP:
-            process::computeCSLTP(resized, X, 25);
+            process::computeCSLTP(resized, X, LTP_THRESHOLD);
             processingType = "CSLTP";
             break;
         }
@@ -186,11 +189,11 @@ void TrainingDataLoader::load(Mat& trainingData,
             processingType = "LBP";
             break;
           case LTP:
-            process::computeLTP(resized, X, 25);
+            process::computeLTP(resized, X, LTP_THRESHOLD);
             processingType = "LTP";
             break;
           case CSLTP:
-            process::computeCSLTP(resized, X, 25);
+            process::computeCSLTP(resized, X, LTP_THRESHOLD);
             processingType = "CSLTP";
             break;
         }
@@ -372,7 +375,9 @@ void loadTrainingData(LoadingParams params,
 #endif
 
     // read individual images for training
-    size_t trainingImageCount = static_cast<size_t>(imagePaths.size() * percent);
+    size_t trainingImageCount =
+        static_cast<size_t>(imagePaths.size() * percent);
+
     for (uint32_t j = 0 ; j < trainingImageCount ; j ++) {
 #ifdef DEBUG
       cout << "tnd.rows = " << tnd.rows << " j = " << j << endl;
@@ -390,10 +395,10 @@ void loadTrainingData(LoadingParams params,
             process::computeLBP(resized, X);
             break;
           case LTP:
-            process::computeLTP(resized, X, 25);
+            process::computeLTP(resized, X, LTP_THRESHOLD);
             break;
           case CSLTP:
-            process::computeCSLTP(resized, X, 25);
+            process::computeCSLTP(resized, X, LTP_THRESHOLD);
             break;
         }
         // copy the x sample to tnd
@@ -409,7 +414,9 @@ void loadTrainingData(LoadingParams params,
     trainingPos += trainingImageCount;
 
     // read individual images for testing
-    size_t testingImageCount = static_cast<size_t>(imagePaths.size() * (1-percent));
+    size_t testingImageCount =
+        static_cast<size_t>(imagePaths.size() * (1-percent));
+
     for (uint32_t j = 0 ; j < testingImageCount ; j ++) {
       string imagePath = path + string(SEPARATOR) +
           imagePaths[j + (size_t)(imagePaths.size() * percent)];
@@ -424,10 +431,10 @@ void loadTrainingData(LoadingParams params,
             process::computeLBP(resized, X);
             break;
           case LTP:
-            process::computeLTP(resized, X, 25);
+            process::computeLTP(resized, X, LTP_THRESHOLD);
             break;
           case CSLTP:
-            process::computeCSLTP(resized, X, 25);
+            process::computeCSLTP(resized, X, LTP_THRESHOLD);
             break;
         }
 
@@ -493,12 +500,13 @@ FaceClassifier::FaceClassifier() {
   this->coef0 = DEFAULT_COEF0;
   this->p = DEFAULT_P;
 
-  this->imageSize = Size(64, 64);
+  this->imageSize = Size(DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE);
 
   this->setupSVM();
 }
 
 FaceClassifier::FaceClassifier(FaceClassifierParams param) {
+  // svm training paramter
   this->type = param.type;
   this->kernelType = param.kernelType;
 
@@ -509,14 +517,17 @@ FaceClassifier::FaceClassifier(FaceClassifierParams param) {
   this->coef0 = param.coef0;
   this->p = param.p;
 
+  // other parameter
   this->imageSize = param.imageSize;
   this->trainingStep = param.trainingStep;
+  this->testPercent = param.testingPercent;
 
   this->setupSVM();
 }
 
 FaceClassifier::FaceClassifier(FaceClassifierParams param,
                                Mat &data, Mat &label) {
+  // svm training paramter
   this->type = param.type;
   this->kernelType = param.kernelType;
 
@@ -527,8 +538,10 @@ FaceClassifier::FaceClassifier(FaceClassifierParams param,
   this->coef0 = param.coef0;
   this->p = param.p;
 
+  // other parameter
   this->imageSize = param.imageSize;
   this->trainingStep = param.trainingStep;
+  this->testPercent = param.testingPercent;
 
   this->setupSVM();
   this->setupTrainingData(data, label);
@@ -604,15 +617,17 @@ void FaceClassifier::setupSVM() {
 }
 
 void FaceClassifier::setupTrainingData(Mat &data, Mat &label) {
-  size_t testingSize = data.rows * TEST_PERCENT > 1 ?
-        data.rows * TEST_PERCENT : 1;
+  size_t testingSize = data.rows * testPercent > 1 ?
+        data.rows * testPercent : 1;
   size_t trainingSize = data.rows - testingSize;
 
   if (data.type() == CV_32FC1 && label.type() == CV_32SC1) {
     trainingData = Mat::zeros(trainingSize, data.cols, data.type());
     testingData = Mat::zeros(testingSize, data.cols, data.type());
-    trainingLabel = Mat::zeros(trainingSize, label.cols, label.type());
-    testingLabel = Mat::zeros(testingSize, label.cols, label.type());
+    trainingLabel = Mat::zeros(trainingSize,
+                               label.cols, label.type());
+    testingLabel = Mat::zeros(testingSize,
+                              label.cols, label.type());
 
     for (int i = 0 ; i < trainingData.rows ; i ++) {
       for (int j = 0 ; j < trainingData.cols ; j ++) {
@@ -665,7 +680,8 @@ void FaceClassifier::train() {
 #endif
 
       if (accuracy >= TEST_ACCURACY_REQUIREMENT) {
-        sendMessage(QString("test accuracy: ") + QString::number(accuracy) +
+        sendMessage(QString("test accuracy: ") +
+                    QString::number(accuracy) +
                     QString(" | requirement reach | stop training ..."));
         return;
       }
@@ -692,8 +708,10 @@ void FaceClassifier::train() {
       }
       this->setupSVM();
 
-      sendMessage(QString("test accuracy: ") + QString::number(accuracy) +
-                  QString(" | gamma = ") + QString::number(this->gamma) +
+      sendMessage(QString("test accuracy: ") +
+                  QString::number(accuracy) +
+                  QString(" | gamma = ") +
+                  QString::number(this->gamma) +
                   QString(" | continue to update..."));
     }
 
@@ -739,8 +757,10 @@ void FaceClassifier::train() {
       }
       this->setupSVM();
 
-      sendMessage(QString("test accuracy: ") + QString::number(accuracy) +
-                  QString(" | gamma = ") + QString::number(this->gamma) +
+      sendMessage(QString("test accuracy: ") +
+                  QString::number(accuracy) +
+                  QString(" | gamma = ") +
+                  QString::number(this->gamma) +
                   QString(" | continue to update..."));
     }
 
@@ -761,7 +781,8 @@ void FaceClassifier::train() {
 }
 
 void FaceClassifier::train(Mat& data, Mat& label) {
-  size_t testingSize = data.rows * TEST_PERCENT > 1 ? data.rows * TEST_PERCENT : 1;
+  size_t testingSize = data.rows * testPercent > 1 ?
+        data.rows * testPercent : 1;
   size_t trainingSize = data.rows - testingSize;
 
   if (data.data && data.type() == CV_32FC1 &&
@@ -839,10 +860,10 @@ int FaceClassifier::predictImageSample(cv::Mat& imageSample) {
       process::computeLBP(resized, sample);
       break;
     case LTP:
-      process::computeLTP(resized, sample, 25);
+      process::computeLTP(resized, sample, LTP_THRESHOLD);
       break;
     case CSLTP:
-      process::computeCSLTP(resized, sample, 25);
+      process::computeCSLTP(resized, sample, LTP_THRESHOLD);
       break;
   }
 
@@ -938,5 +959,8 @@ FeatureType FaceClassifier::getFeatureType() {
 #undef DEFAULT_DEGREE
 #undef DEFAULT_COEF0
 #undef DEFAULT_P
+#undef DEFAULT_IMAGE_SIZE
+
+#undef LTP_THRESHOLD
 
 #undef MIN
