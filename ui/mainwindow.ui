@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1024</width>
-    <height>768</height>
+    <height>787</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -230,6 +230,53 @@
           </layout>
          </item>
          <item>
+          <layout class="QVBoxLayout" name="trainingStepLayout">
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>12</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>training step:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="trainingStepSelectLayout">
+             <item>
+              <widget class="QSlider" name="tssSlider">
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="tssLabel">
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>12</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>0.1</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
           <widget class="QGroupBox" name="radioGroup">
            <property name="minimumSize">
             <size>
@@ -260,7 +307,7 @@
               <height>31</height>
              </rect>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <layout class="QHBoxLayout" name="rbGroupLayout">
              <item>
               <widget class="QRadioButton" name="rbLBP">
                <property name="font">
