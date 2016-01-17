@@ -33,6 +33,10 @@
 #define SELECT_TEXT "Select one..."
 #define INTERVAL 33
 #define PERCENT 0.76
+#define DEFAULT_IMAGE_SIZE 64
+#define DEFAULT_TRAINING_STEP 0.1
+#define TRAINING_STEP_LEFT -1
+#define TRAINING_STEP_DELTA 0.01
 
 using classifier::FaceClassifier;
 using classifier::FeatureType;
@@ -64,6 +68,7 @@ class MainWindow : public QMainWindow {
   void setLog(QString log);
   void addTrainingData();
   void addNewPerson();
+  void adjustTrainingStep(int value);
 
  private:
   Ui::MainWindow *ui = nullptr;
@@ -92,6 +97,10 @@ class MainWindow : public QMainWindow {
   const char* SELECT = SELECT_TEXT;
   const int CAMEAR_INTERVAL = INTERVAL;
   const double LOADING_PERCENT = PERCENT;
+  const double IMAGE_SIZE = DEFAULT_IMAGE_SIZE;
+  const double TRAINING_STEP = DEFAULT_TRAINING_STEP;
+  const double LEFT = TRAINING_STEP_LEFT;
+  const double DELTA = TRAINING_STEP_DELTA;
 };
 
 #undef FACE_IMAGE_ROOT_DIR
@@ -104,5 +113,9 @@ class MainWindow : public QMainWindow {
 #undef VALUE_NAME
 #undef INTERVAL
 #undef PERCENT
+#undef IMAGE_SIZE
+#undef TRAINING_STEP
+#undef TRAINING_STEP_LEFT
+#undef TRAINING_STEP_DELTA
 
 #endif // MAINWINDOW_H
