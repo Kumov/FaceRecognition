@@ -13,6 +13,7 @@
 
 using classifier::LoadingParams;
 using classifier::FaceClassifier;
+using classifier::FaceClassifierParams;
 using classifier::FeatureType;
 using classifier::TrainingDataLoader;
 using cv::Mat;
@@ -28,6 +29,8 @@ class TrainingTask : public QThread {
                QString _modelExtension,
                QString _modelBasePath,
                double _loadingPercent,
+               double _size,
+               double _trainingStep,
                FeatureType _featureType = classifier::LBP);
   virtual ~TrainingTask();
   virtual void run();
@@ -43,10 +46,12 @@ class TrainingTask : public QThread {
   QString faceImageDirectory, modelBaseName, modelExtension;
   QString currentModelPath, modelBasePath;
   double loadingPercent;
+  double trainingStep;
   FeatureType featureType;
   map<int, string> names;
   FaceClassifier* faceClassifier = nullptr;
   Mat trainingData, trainingLabel;
+  Size trainingSize;
 };
 
 #endif // TRAININGTASK_H
