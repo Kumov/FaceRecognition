@@ -39,6 +39,16 @@ MainWindow::MainWindow(QWidget *parent) :
           this, SLOT(adjustTrainingStep(int)));
 
   // menu event
+  connect(ui->actionAdd_new_person, SIGNAL(triggered(bool)),
+          this, SLOT(addNewPersonWithPrompt(bool)));
+  connect(ui->actionImport, SIGNAL(triggered(bool)),
+          this, SLOT(importModel(bool)));
+  connect(ui->actionExport, SIGNAL(triggered(bool)),
+          this, SLOT(exportModel(bool)));
+  connect(ui->actionTrain, SIGNAL(triggered()),
+          this, SLOT(train()));
+  connect(ui->actionExit, SIGNAL(triggered(bool)),
+          this, SLOT(exit(bool)));
 
   // face classifier message capture
   connect(faceClassifier, SIGNAL(sendMessage(QString)),
@@ -432,4 +442,56 @@ void MainWindow::adjustTrainingStep(int value) {
   QString stepDisplay;
   stepDisplay.sprintf("%.6lf", step);
   ui->tssLabel->setText(stepDisplay);
+}
+
+void MainWindow::addNewPersonWithPrompt(bool) {
+  bool ok = false;
+  QString newName = QInputDialog::getText(this,
+                                          tr("New user Name:"),
+                                          tr("new user name:"),
+                                          QLineEdit::Normal,
+                                          QDir::home().dirName(),
+                                          &ok);
+  if (ok) {
+    ui->leNew->setText(newName);
+    this->addNewPerson();
+  } else {
+#ifdef QT_DEBUG
+    setLog("cancel add new user");
+#endif
+  }
+}
+
+void MainWindow::importModel(bool) {
+  QString modelName =
+      QFileDialog::getOpenFileName(this,
+                                   tr("Open model"),
+                                   QDir::home().dirName(),
+                                   tr("XML files (*.xml)"));
+  if (modelName.length() > 0) {
+    this->faceClassifier->load(modelName.toStdString());
+    setLog("model loaded");
+  }
+}
+
+void MainWindow::exportModel(bool) {
+  const QString defaultModelName = QString(MODEL_BASE_NAME) +
+      QString(MODEL_EXTENSION);
+  QString modelName =
+      QFileDialog::getSaveFileName(this,
+                                   "Save model",
+                                   defaultModelName,
+                                   tr("Xml File (.xml)"));
+
+  if (modelName.length() > 0) {
+    QString currentModel = QString(MODEL_BASE_DIR) +
+        QDir::separator() + QString(MODEL_BASE_NAME) +
+        QString(MODEL_EXTENSION);
+    QFile::copy(currentModel, modelName);
+    setLog("new model exported");
+  }
+}
+
+void MainWindow::exit(bool) {
+  QApplication::quit();
 }
