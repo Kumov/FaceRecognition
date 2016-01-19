@@ -38,7 +38,7 @@ const double DEFAULT_TEST_PERCENT = 0.1;
 const double DEFAULT_TRAINING_STEP = 0.05;
 const double DEFAULT_IMAGE_SIZE = 64;
 const double TEST_ACCURACY_REQUIREMENT = 0.966;
-const uint32_t MAX_ITERATION = 1000;
+const uint32_t MAX_ITERATION = 360;
 // local constants
 
 /***** TrainingDataLoader ******/
@@ -716,6 +716,12 @@ void FaceClassifier::train() {
       fprintf(stdout, "test accuracy: %lf\n", accuracy);
 #endif
 
+      sendMessage(QString("test accuracy: ") +
+                  QString::number(accuracy) +
+                  QString(" | gamma = ") +
+                  QString::number(this->gamma) +
+                  QString(" | continue to update..."));
+
       if (accuracy >= TEST_ACCURACY_REQUIREMENT) {
         determineFeatureType();
         sendMessage(QString("test accuracy: ") +
@@ -745,12 +751,6 @@ void FaceClassifier::train() {
           break;
       }
       this->setupSVM();
-
-      sendMessage(QString("test accuracy: ") +
-                  QString::number(accuracy) +
-                  QString(" | gamma = ") +
-                  QString::number(this->gamma) +
-                  QString(" | continue to update..."));
     }
 
 #ifdef QT_DEBUG
@@ -772,6 +772,12 @@ void FaceClassifier::train() {
       fprintf(stdout, "test accuracy: %lf\n", accuracy);
 #endif
 
+      sendMessage(QString("test accuracy: ") +
+                  QString::number(accuracy) +
+                  QString(" | gamma = ") +
+                  QString::number(this->gamma) +
+                  QString(" | continue to update..."));
+
       if (accuracy >= TEST_ACCURACY_REQUIREMENT) {
         determineFeatureType();
         sendMessage(QString("test accuracy: ") +
@@ -801,12 +807,6 @@ void FaceClassifier::train() {
           break;
       }
       this->setupSVM();
-
-      sendMessage(QString("test accuracy: ") +
-                  QString::number(accuracy) +
-                  QString(" | gamma = ") +
-                  QString::number(this->gamma) +
-                  QString(" | continue to update..."));
     }
 
     // if desire accuracy cannot reach
@@ -814,6 +814,13 @@ void FaceClassifier::train() {
     this->gamma = maxGamma;
     this->setupSVM();
     this->svm->train(td);
+    accuracy = this->testAccuracy();
+    sendMessage(QString("cannot reach desire test accuracy | ") +
+                QString("using max test accuracy gamma | ") +
+                QString("test accuracy: ") +
+                QString::number(accuracy) +
+                QString(" | gamma = ") +
+                QString::number(this->gamma));
 
     determineFeatureType();
   } else {
