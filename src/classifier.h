@@ -14,14 +14,6 @@
 #include "process.h"
 #include "common.h"
 
-#define DEFAULT_BG_DIR "bg"
-#define DEFAULT_POS_DIR "/pos"
-#define DEFAULT_NEG_DIR "/neg"
-#define DEFAULT_TEST_PERCENT 0.1
-#define ACCURACY_REQUIREMENT 0.966
-#define DEFAULT_TRAINING_STEP 0.05
-#define ITERATION 1000
-
 #ifdef QT_DEBUG
 using std::cout;
 using std::endl;
@@ -40,6 +32,15 @@ using cv::Ptr;
 using cv::imread;
 using cv::resize;
 using cv::ml::StatModel;
+
+// constants
+extern const char* const DEFAULT_BG_DIR;
+extern const char* const DEFAULT_POS_DIR;
+extern const char* const DEFAULT_NEG_DIR;
+extern const double DEFAULT_TEST_PERCENT;
+extern const double DEFAULT_TRAINING_STEP;
+extern const double ACCURACY_REQUIREMENT;
+extern const uint32_t ITERATION;
 
 namespace classifier {
 // supported feature type
@@ -211,7 +212,7 @@ class FaceClassifier : public QObject {
   Size imageSize;
   const string MODEL_OUTPUT = "facemodel.xml";
   const double TEST_ACCURACY_REQUIREMENT = ACCURACY_REQUIREMENT;
-  const unsigned long long int MAX_ITERATION = ITERATION;
+  const uint32_t MAX_ITERATION = ITERATION;
 };
 
 typedef struct FaceClassifierParams {
@@ -263,9 +264,5 @@ typedef struct FaceClassifierParams {
 } FaceClassifierParams;
 
 } /* classifier */
-
-#undef DEFAULT_BG_DIR
-#undef DEFAULT_POS_DIR
-#undef DEFAULT_NEG_DIR
 
 #endif /* end of include guard: CLASSIFIER_H */
