@@ -14,24 +14,12 @@
 #include "process.h"
 #include "common.h"
 
-#ifdef QT_DEBUG
-using std::cout;
-using std::endl;
-#endif
-
 using std::string;
 using std::map;
-using std::vector;
-using std::pair;
 using cv::Mat;
 using cv::Size;
-using cv::ml::TrainData;
-using cv::ml::ROW_SAMPLE;
 using cv::ml::SVM;
 using cv::Ptr;
-using cv::imread;
-using cv::resize;
-using cv::ml::StatModel;
 
 namespace classifier {
 // constants
@@ -40,6 +28,7 @@ extern const char* const DEFAULT_POS_DIR;
 extern const char* const DEFAULT_NEG_DIR;
 extern const char* const DEFAULT_MODEL_OUTPUT;
 extern const double DEFAULT_TEST_PERCENT;
+extern const double DEFAULT_IMAGE_SIZE;
 extern const double DEFAULT_TRAINING_STEP;
 extern const double TEST_ACCURACY_REQUIREMENT;
 extern const uint32_t MAX_ITERATION;
@@ -175,6 +164,7 @@ class FaceClassifier : public QObject {
     // Sigmoid kernel:
     // K(x_i, x_j) = \tanh(\gamma x_i^T x_j + coef0).
   };
+
 
   FaceClassifier();
   explicit FaceClassifier(struct FaceClassifierParams param);
