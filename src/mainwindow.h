@@ -24,26 +24,23 @@
 #define FACE_MODEL_BASE_NAME "facemodel"
 #define FACE_MODEL_EXTENSION ".xml"
 #define FACE_MODEL_BASE_DIR "svmmodel"
-#define BACKGROUND_IMAGE_DIR "bg"
-#define POSITIVE_DIRECTORY "pos"
-#define NEGATIVE_DIRECTORY "neg"
 #define IMAGE_OUTPUT_EXTENSION ".jpg"
 #define NAME_MAP "names.xml"
+
 #define LIST_NAME "list"
 #define ENTRY_NAME "entry"
 #define KEY_NAME "key"
 #define VALUE_NAME "value"
 #define SELECT_TEXT "Select one..."
+
 #define INTERVAL 33
 #define PERCENT 0.76
-#define DEFAULT_IMAGE_SIZE 64
 #define TRAINING_STEP_LEFT -1
 #define TRAINING_STEP_DELTA 0.01
 
 using classifier::FaceClassifier;
 using classifier::FeatureType;
 using cv::Mat;
-using cv::imwrite;
 
 namespace Ui {
 class MainWindow;
@@ -91,9 +88,9 @@ class MainWindow : public QMainWindow {
   const char* MODEL_BASE_NAME = FACE_MODEL_BASE_NAME;
   const char* MODEL_EXTENSION = FACE_MODEL_EXTENSION;
   const char* MODEL_BASE_DIR = FACE_MODEL_BASE_DIR;
-  const char* BG_IMAGE_DIR = BACKGROUND_IMAGE_DIR;
-  const char* POS_DIR = POSITIVE_DIRECTORY;
-  const char* NEG_DIR = NEGATIVE_DIRECTORY;
+  const char* BG_IMAGE_DIR = classifier::DEFAULT_BG_DIR;
+  const char* POS_DIR = classifier::DEFAULT_POS_DIR;
+  const char* NEG_DIR = classifier::DEFAULT_NEG_DIR;
   const char* IMAGE_OUTPUT = IMAGE_OUTPUT_EXTENSION;
   const char* MAPPING_FILE = NAME_MAP;
   const char* LIST = LIST_NAME;
@@ -103,7 +100,7 @@ class MainWindow : public QMainWindow {
   const char* SELECT = SELECT_TEXT;
   const int CAMEAR_INTERVAL = INTERVAL;
   const double LOADING_PERCENT = PERCENT;
-  const double IMAGE_SIZE = DEFAULT_IMAGE_SIZE;
+  const double IMAGE_SIZE = classifier::DEFAULT_IMAGE_SIZE;
   const double TRAINING_STEP = classifier::DEFAULT_TRAINING_STEP;
   const double LEFT = TRAINING_STEP_LEFT;
   const double DELTA = TRAINING_STEP_DELTA;
@@ -112,14 +109,17 @@ class MainWindow : public QMainWindow {
 #undef FACE_IMAGE_ROOT_DIR
 #undef FACE_MODEL_BASE_NAME
 #undef FACE_MODEL_EXTENSION
+#undef IMAGE_OUTPUT_EXTENSION
 #undef NAME_MAP
+
 #undef LIST_NAME
 #undef ENTRY_NAME
 #undef KEY_NAME
 #undef VALUE_NAME
+#undef SELECT_TEXT
+
 #undef INTERVAL
 #undef PERCENT
-#undef DEFAULT_IMAGE_SIZE
 #undef TRAINING_STEP_LEFT
 #undef TRAINING_STEP_DELTA
 
