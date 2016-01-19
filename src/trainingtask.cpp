@@ -1,5 +1,10 @@
 #include "trainingtask.h"
 
+#ifdef QT_DEBUG
+using std::cout;
+using std::endl;
+#endif
+
 TrainingTask::TrainingTask(QString _faceImageDirectory,
                            QString _modelBaseName,
                            QString _modelExtension,
