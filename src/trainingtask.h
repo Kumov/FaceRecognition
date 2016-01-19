@@ -11,15 +11,10 @@
 
 #include "classifier.h"
 
-using classifier::LoadingParams;
 using classifier::FaceClassifier;
-using classifier::FaceClassifierParams;
 using classifier::FeatureType;
-using classifier::TrainingDataLoader;
 using cv::Mat;
 using cv::Size;
-using std::map;
-using std::string;
 
 class TrainingTask : public QThread {
   Q_OBJECT
@@ -28,10 +23,10 @@ class TrainingTask : public QThread {
                QString _modelBaseName,
                QString _modelExtension,
                QString _modelBasePath,
-               double _loadingPercent,
-               double _size,
-               double _trainingStep,
-               FeatureType _featureType = classifier::LBP);
+               double lp = (1-classifier::DEFAULT_TEST_PERCENT),
+               double s = classifier::DEFAULT_IMAGE_SIZE,
+               double ts = classifier::DEFAULT_TRAINING_STEP,
+               FeatureType ft = classifier::LBP);
   virtual ~TrainingTask();
   virtual void run();
 
