@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+using cv::imwrite;
+
 MainWindow::MainWindow(QWidget *parent) :
             QMainWindow(parent),
             ui(new Ui::MainWindow),
@@ -281,7 +283,8 @@ void MainWindow::readMap() {
               if (in.isStartElement() && in.name() == QString(KEY)) {
                 key = in.readElementText();
                 in.readNext();
-              } else if (in.isStartElement() && in.name() == QString(VALUE)) {
+              } else if (in.isStartElement() &&
+                         in.name() == QString(VALUE)) {
                 value = in.readElementText();
                 in.readNext();
               } else if (in.isEndElement()) {
@@ -315,15 +318,15 @@ void MainWindow::addTrainingData() {
       if (user != QString(BG_IMAGE_DIR)) {
         // if target is a user image
         // calculate the path
-        QString filePath = QString(FACE_IMAGE_DIR) + QDir::separator() +
-            user + QDir::separator() + QString(POS_DIR) +
+        QString filePath = QString(FACE_IMAGE_DIR) +
+            QDir::separator() + user + QString(POS_DIR) +
             QDir::separator() + user + QString::number(index) +
             QString(IMAGE_OUTPUT);
         QFile* newImageData = new QFile(filePath);
         while (newImageData->exists()) {
           index ++;
-          filePath = QString(FACE_IMAGE_DIR) + QDir::separator() +
-              user + QDir::separator() + QString(POS_DIR) +
+          filePath = QString(FACE_IMAGE_DIR) +
+              QDir::separator() + user + QString(POS_DIR) +
               QDir::separator() + user + QString::number(index) +
               QString(IMAGE_OUTPUT);
           delete newImageData;
@@ -358,17 +361,17 @@ void MainWindow::addTrainingData() {
       }
     } else {
       QMessageBox::warning(this, "Warning",
-                           "You need to select who the target image is for",
+                           "Need to select the target user",
                            QMessageBox::Ok, QMessageBox::NoButton);
-      setLog("warning!! you need to select who the target image is for");
+      setLog("warning!! Need to select the target user");
     }
     // resume the camera capture
     resume();
   } else {
     QMessageBox::information(this, "Take Picture",
-                         "You need to take a picture first",
+                         "Need to take a picture first",
                          QMessageBox::Ok, QMessageBox::NoButton);
-    setLog("warning!! you need to select who the target image is for");
+    setLog("warning!! Need to take a picture first");
   }
 }
 
@@ -427,7 +430,8 @@ void MainWindow::addNewPerson() {
     this->loadNameList();
     setLog(name + " is added to image root directory");
   } else {
-    QMessageBox::information(this, "Error!!", "Need to specify a new name",
+    QMessageBox::information(this,
+                             "Error!!", "Need to specify a new name",
                              QMessageBox::Ok);
     setLog("need to specify a new name!!");
   }
