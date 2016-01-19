@@ -8,15 +8,40 @@
 #define DEFAULT_DEGREE 2
 #define DEFAULT_COEF0 0.1
 #define DEFAULT_P 0
-#define DEFAULT_IMAGE_SIZE 64
 
 #define LTP_THRESHOLD 25
 
+// macro
 #undef MIN
 #define MIN(n1, n2) (n1 < n2 ? n1 : n2)
 
-namespace classifier {
+#ifdef QT_DEBUG
+using std::cout;
+using std::endl;
+#endif
 
+using std::vector;
+using std::pair;
+using cv::ml::TrainData;
+using cv::ml::ROW_SAMPLE;
+using cv::imread;
+using cv::resize;
+using cv::ml::StatModel;
+
+namespace classifier {
+// constants
+const char* const DEFAULT_BG_DIR = "bg";
+const char* const DEFAULT_POS_DIR = "/pos";
+const char* const DEFAULT_NEG_DIR = "/pos";
+const char* const DEFAULT_MODEL_OUTPUT = "facemodel.xml";
+const double DEFAULT_TEST_PERCENT = 0.1;
+const double DEFAULT_TRAINING_STEP = 0.05;
+const double DEFAULT_IMAGE_SIZE = 64;
+const double TEST_ACCURACY_REQUIREMENT = 0.966;
+const uint32_t MAX_ITERATION = 1000;
+// local constants
+
+/***** TrainingDataLoader ******/
 TrainingDataLoader::TrainingDataLoader(const LoadingParams params) {
   this->directory = params.directory;
   this->percent = params.percentForTraining;
@@ -287,7 +312,9 @@ void TrainingDataLoader::brief(const Mat& mat, string& str) {
   }
   str += ", ...]";
 }
+/*----- end of TrainingDataLoader -----*/
 
+/****** old training data loading function ******/
 void loadTrainingData(LoadingParams params,
                       Mat& trainingData,
                       Mat& trainingLabel,
@@ -488,7 +515,9 @@ void loadTrainingData(LoadingParams params,
   cout << trainingLabel << endl;
 #endif
 }
+/*----- end of old training data loading function -----*/
 
+/****** FaceClassifier ******/
 FaceClassifier::FaceClassifier() {
   this->type = DEFAULT_CLASSIIFIER_TYPE;
   this->kernelType = DEFAULT_CLASSIIFIER_KERNEL_TYPE;
@@ -649,7 +678,7 @@ void FaceClassifier::setupTrainingData(Mat &data, Mat &label) {
 }
 
 void FaceClassifier::saveModel() {
-  this->svm->save(MODEL_OUTPUT);
+  this->svm->save(DEFAULT_MODEL_OUTPUT);
 }
 
 void FaceClassifier::saveModel(string modelPath) {
@@ -668,21 +697,30 @@ void FaceClassifier::train() {
     sendMessage(QString("decreasing training parameter"));
 #endif
 
+    double maxAccuracy = 0;
+    double maxGamma = 0;
     double accuracy = 0;
+
     // cache up original parameters
     this->gammaCache = this->gamma;
+
     for (unsigned int i = 0 ; i < MAX_ITERATION ; i ++) {
       this->svm->train(td);
       accuracy = this->testAccuracy();
+      if (accuracy > maxAccuracy) {
+        maxAccuracy = accuracy;
+        maxGamma = this->gamma;
+      }
 
 #ifdef DEBUG
       fprintf(stdout, "test accuracy: %lf\n", accuracy);
 #endif
 
       if (accuracy >= TEST_ACCURACY_REQUIREMENT) {
+        determineFeatureType();
         sendMessage(QString("test accuracy: ") +
                     QString::number(accuracy) +
-                    QString(" | requirement reach | stop training ..."));
+                    QString(" | requirement reach | stop training"));
         return;
       }
 
@@ -719,19 +757,26 @@ void FaceClassifier::train() {
     sendMessage(QString("increasing training parameter"));
 #endif
 
+    // restore gamma to original value
     this->gamma = this->gammaCache;
+
     for (unsigned int i = 0 ; i < MAX_ITERATION ; i ++) {
       this->svm->train(td);
       accuracy = this->testAccuracy();
+      if (accuracy > maxAccuracy) {
+        maxAccuracy = accuracy;
+        maxGamma = this->gamma;
+      }
 
 #ifdef DEBUG
       fprintf(stdout, "test accuracy: %lf\n", accuracy);
 #endif
 
       if (accuracy >= TEST_ACCURACY_REQUIREMENT) {
+        determineFeatureType();
         sendMessage(QString("test accuracy: ") +
                     QString::number(accuracy) +
-                    QString(" | requirement reach | stop training ..."));
+                    QString(" | requirement reach | stop training"));
         return;
       }
 
@@ -764,7 +809,9 @@ void FaceClassifier::train() {
                   QString(" | continue to update..."));
     }
 
-    this->gamma = this->gammaCache;
+    // if desire accuracy cannot reach
+    // use the gamma with highest testing accuracy
+    this->gamma = maxGamma;
     this->setupSVM();
     this->svm->train(td);
 
@@ -959,7 +1006,6 @@ FeatureType FaceClassifier::getFeatureType() {
 #undef DEFAULT_DEGREE
 #undef DEFAULT_COEF0
 #undef DEFAULT_P
-#undef DEFAULT_IMAGE_SIZE
 
 #undef LTP_THRESHOLD
 
