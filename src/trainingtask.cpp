@@ -5,6 +5,12 @@ using std::cout;
 using std::endl;
 #endif
 
+using classifier::LoadingParams;
+using classifier::FaceClassifierParams;
+using classifier::TrainingDataLoader;
+using std::map;
+using std::string;
+
 TrainingTask::TrainingTask(QString _faceImageDirectory,
                            QString _modelBaseName,
                            QString _modelExtension,
