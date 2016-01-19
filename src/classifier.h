@@ -33,6 +33,7 @@ using cv::imread;
 using cv::resize;
 using cv::ml::StatModel;
 
+namespace classifier {
 // constants
 extern const char* const DEFAULT_BG_DIR;
 extern const char* const DEFAULT_POS_DIR;
@@ -42,7 +43,6 @@ extern const double DEFAULT_TRAINING_STEP;
 extern const double ACCURACY_REQUIREMENT;
 extern const uint32_t ITERATION;
 
-namespace classifier {
 // supported feature type
 typedef enum {
   LBP,      // local binary pattern
