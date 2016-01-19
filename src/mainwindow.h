@@ -11,6 +11,9 @@
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include <QMessageBox>
+#include <QInputDialog>
+#include <QFileDialog>
+#include <QLineEdit>
 
 #include "opencvcamera.h"
 #include "imageviewer.h"
@@ -34,7 +37,6 @@
 #define INTERVAL 33
 #define PERCENT 0.76
 #define DEFAULT_IMAGE_SIZE 64
-#define DEFAULT_TRAINING_STEP 0.1
 #define TRAINING_STEP_LEFT -1
 #define TRAINING_STEP_DELTA 0.01
 
@@ -69,6 +71,10 @@ class MainWindow : public QMainWindow {
   void addTrainingData();
   void addNewPerson();
   void adjustTrainingStep(int value);
+  void addNewPersonWithPrompt(bool);
+  void importModel(bool);
+  void exportModel(bool);
+  void exit(bool);
 
  private:
   Ui::MainWindow *ui = nullptr;
@@ -98,7 +104,7 @@ class MainWindow : public QMainWindow {
   const int CAMEAR_INTERVAL = INTERVAL;
   const double LOADING_PERCENT = PERCENT;
   const double IMAGE_SIZE = DEFAULT_IMAGE_SIZE;
-  const double TRAINING_STEP = DEFAULT_TRAINING_STEP;
+  const double TRAINING_STEP = classifier::DEFAULT_TRAINING_STEP;
   const double LEFT = TRAINING_STEP_LEFT;
   const double DELTA = TRAINING_STEP_DELTA;
 };
@@ -113,8 +119,7 @@ class MainWindow : public QMainWindow {
 #undef VALUE_NAME
 #undef INTERVAL
 #undef PERCENT
-#undef IMAGE_SIZE
-#undef TRAINING_STEP
+#undef DEFAULT_IMAGE_SIZE
 #undef TRAINING_STEP_LEFT
 #undef TRAINING_STEP_DELTA
 
