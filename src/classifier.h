@@ -38,10 +38,11 @@ namespace classifier {
 extern const char* const DEFAULT_BG_DIR;
 extern const char* const DEFAULT_POS_DIR;
 extern const char* const DEFAULT_NEG_DIR;
+extern const char* const DEFAULT_MODEL_OUTPUT;
 extern const double DEFAULT_TEST_PERCENT;
 extern const double DEFAULT_TRAINING_STEP;
-extern const double ACCURACY_REQUIREMENT;
-extern const uint32_t ITERATION;
+extern const double TEST_ACCURACY_REQUIREMENT;
+extern const uint32_t MAX_ITERATION;
 
 // supported feature type
 typedef enum {
@@ -210,9 +211,6 @@ class FaceClassifier : public QObject {
   Mat trainingData, testingData;
   Mat trainingLabel, testingLabel;
   Size imageSize;
-  const string MODEL_OUTPUT = "facemodel.xml";
-  const double TEST_ACCURACY_REQUIREMENT = ACCURACY_REQUIREMENT;
-  const uint32_t MAX_ITERATION = ITERATION;
 };
 
 typedef struct FaceClassifierParams {
