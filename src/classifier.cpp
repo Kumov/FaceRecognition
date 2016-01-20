@@ -875,7 +875,7 @@ void FaceClassifier::train(Mat& data, Mat& label) {
   this->train();
 }
 
-int FaceClassifier::predict(cv::Mat& sample) {
+int FaceClassifier::predict(Mat& sample) {
   if (this->svm->isTrained()) {
     if (sample.rows == 1 && sample.cols == trainingData.cols &&
         sample.type() == trainingData.type()) {
@@ -902,7 +902,7 @@ int FaceClassifier::predict(cv::Mat& sample) {
   }
 }
 
-int FaceClassifier::predictImageSample(cv::Mat& imageSample) {
+int FaceClassifier::predictImageSample(Mat& imageSample) {
   Mat sample, resized;
   string briefMat;
 
@@ -951,10 +951,14 @@ int FaceClassifier::predictImageSample(cv::Mat& imageSample) {
   }
 }
 
-void FaceClassifier::load(string modelPath) {
-  svm = StatModel::load<SVM>(modelPath);
-
-  determineFeatureType();
+bool FaceClassifier::load(string modelPath) {
+  try {
+    svm = StatModel::load<SVM>(modelPath);
+    determineFeatureType();
+  } catch (cv::Exception e) {
+    sendMessage("Error: Not a valid svm:");
+    sendMessage(e.msg.c_str());
+  }
 }
 
 double FaceClassifier::testAccuracy() {
