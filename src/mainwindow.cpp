@@ -473,8 +473,11 @@ void MainWindow::importModel(bool) {
                                    QDir::home().dirName(),
                                    tr("XML files (*.xml)"));
   if (modelName.length() > 0) {
-    this->faceClassifier->load(modelName.toStdString());
-    setLog("model loaded");
+    if (this->faceClassifier->load(modelName.toStdString())) {
+      setLog("model loaded");
+    } else {
+      setLog("model not loaded");
+    }
   }
 }
 
