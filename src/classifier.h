@@ -177,7 +177,7 @@ class FaceClassifier : public QObject {
   void train(Mat& data, Mat& label);
   int predict(Mat& sample);
   int predictImageSample(Mat& imageSample);
-  void load(string modelPath);
+  bool load(string modelPath);
   double testAccuracy();
   bool isLoaded();
   void determineFeatureType();
