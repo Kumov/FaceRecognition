@@ -955,10 +955,13 @@ bool FaceClassifier::load(string modelPath) {
   try {
     svm = StatModel::load<SVM>(modelPath);
     determineFeatureType();
+    return true;
   } catch (cv::Exception e) {
     sendMessage("Error: Not a valid svm:");
     sendMessage(e.msg.c_str());
+    return false;
   }
+  return false;
 }
 
 double FaceClassifier::testAccuracy() {
