@@ -241,7 +241,7 @@ void TrainingDataLoader::load(Mat& trainingData,
   }
 
   // debug info
-#ifdef DEBUG
+#ifdef QT_DEBUG
   cout << tnd << endl;
   cout << ttd << endl;
   cout << tnl << endl;
@@ -647,7 +647,7 @@ void FaceClassifier::setupSVM() {
 
 void FaceClassifier::setupTrainingData(Mat &data, Mat &label) {
   size_t testingSize = data.rows * testPercent > 1 ?
-        data.rows * testPercent : 1;
+        static_cast<size_t>(data.rows * testPercent) : 1;
   size_t trainingSize = data.rows - testingSize;
 
   if (data.type() == CV_32FC1 && label.type() == CV_32SC1) {
@@ -675,6 +675,7 @@ void FaceClassifier::setupTrainingData(Mat &data, Mat &label) {
       testingLabel.ptr<int>()[i] = label.ptr<int>()[loffset + i];
     }
   }
+
 }
 
 void FaceClassifier::saveModel() {
@@ -971,7 +972,7 @@ double FaceClassifier::testAccuracy() {
     this->svm->predict(testingData, testResult);
 
     for (int i = 0 ; i < testResult.rows ; i ++) {
-      if (testResult.ptr<float>()[i] == testingLabel.ptr<int>()[i])
+      if (static_cast<int>(testResult.ptr<float>()[i]) == testingLabel.ptr<int>()[i])
         correct ++;
     }
     return (double) correct / testingLabel.rows;
