@@ -29,7 +29,22 @@ vector<string> scanDir(const string path, const vector<string> exclusion) {
 #endif
   }
 #elif defined(__WIN32)
-  // code for windows ...
+  DIR *dir = NULL;
+  struct dirent *entity = NULL;
+  if((dir = opendir(path.c_str())) != NULL) {
+    while((entity = readdir(dir)) != NULL) {
+      // exclude . , .. , output file, and vector file
+      if(!contain(exclusion, entity->d_name)) {
+        const string file(entity->d_name);
+        files.push_back(file);
+      }
+    }
+    closedir(dir);
+  } else {
+#ifdef DEBUG
+    fprintf(stderr, "Fail to open %s\n", path.c_str());
+#endif
+  }
 #endif
   return files;
 }
@@ -55,7 +70,22 @@ void scanDir(const string path, vector<string>& files,
 #endif
   }
 #elif defined(__WIN32)
-  // code for windows ...
+    DIR *dir = NULL;
+    struct dirent *entity = NULL;
+    if((dir = opendir(path.c_str())) != NULL) {
+      while((entity = readdir(dir)) != NULL) {
+        // exclude . , .. , output file, and vector file
+        if(!contain(exclusion, entity->d_name)) {
+          const string file(entity->d_name);
+          files.push_back(file);
+        }
+      }
+      closedir(dir);
+    } else {
+  #ifdef DEBUG
+      fprintf(stderr, "Fail to open %s\n", path.c_str());
+  #endif
+    }
 #endif
 }
 
@@ -88,7 +118,14 @@ bool createDirectory(const string name) {
   else
     return true;
 #elif defined(__WIN32)
-  // code for windows
+  size_t pathLength = sizeof(wchar_t) * (name.length() + 1);
+  wchar_t* longFilePath = (wchar_t*) malloc(pathLength);
+  memset(longFilePath, L'\0', pathLength);
+  swprintf(longFilePath, L"%hs", name.c_str());
+  if (CreateDirectory(longFilePath, NULL) == 0) {
+      return false;
+  }
+  return true;
 #endif
 }
 
@@ -102,7 +139,11 @@ bool deleteFile(const string filePath) {
     return false;
   }
 #elif defined(__WIN32)
-  // code for windows
+  size_t pathLength = sizeof(wchar_t) * (filePath.length() + 1);
+  wchar_t* longFilePath = (wchar_t*) malloc(pathLength);
+  memset(longFilePath, L'\0', pathLength);
+  swprintf(longFilePath, L"%hs", filePath.c_str());
+  DeleteFile(longFilePath);
 #endif
   return true;
 }
