@@ -171,6 +171,7 @@ class FaceClassifier : public QObject {
   FaceClassifier(struct FaceClassifierParams param,
                  Mat& data, Mat& label);
   virtual ~FaceClassifier() {}
+  void setImageSize(Size newSize);
   void saveModel();
   void saveModel(string modelPath);
   void train();

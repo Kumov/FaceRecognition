@@ -671,6 +671,10 @@ void FaceClassifier::setupTrainingData(Mat &data, Mat &label) {
   }
 }
 
+void FaceClassifier::setImageSize(Size newSize) {
+  this->imageSize = newSize;
+}
+
 void FaceClassifier::saveModel() {
   this->svm->save(DEFAULT_MODEL_OUTPUT);
 }
