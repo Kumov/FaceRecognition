@@ -342,8 +342,8 @@ void loadTrainingData(LoadingParams params,
       path = directory + string(SEPARATOR) + userFiles[i] + posDir;
     }
     scanDir(path, imagePaths, exclusion);
-    trainingSize += (size_t) (imagePaths.size() * percent);
-    testingSize += (size_t) (imagePaths.size() * (1-percent));
+    trainingSize += static_cast<size_t>(imagePaths.size() * percent);
+    testingSize += static_cast<size_t>(imagePaths.size() * (1-percent));
 
     // mappings
     names.insert(pair<int,string>((i-userFiles.size()/2),
@@ -428,12 +428,12 @@ void loadTrainingData(LoadingParams params,
         }
         // copy the x sample to tnd
         for (uint32_t k = 0 ; k < featureLength ; k ++) {
-          tnd.ptr<float>()[(j + trainingPos) * tnd.cols + k] =
-              X.ptr<float>()[k];
+          tnd.ptr<float>(j + trainingPos)[k] =
+              X.ptr<float>(0)[k];
         }
 
         // set label for this sample
-        tnl.ptr<int>()[j + trainingPos] = i - userFiles.size() / 2;
+        tnl.ptr<int>(j)[0] = i - userFiles.size() / 2;
       }
     }
     trainingPos += trainingImageCount;
@@ -465,11 +465,11 @@ void loadTrainingData(LoadingParams params,
 
         // copy the x sample to tnd
         for (uint32_t k = 0 ; k < featureLength ; k ++) {
-          ttd.ptr<float>()[(j + testingPos) * ttd.cols + k] =
-              X.ptr<float>()[k];
+          ttd.ptr<float>(j)[k] =
+              X.ptr<float>(0)[k];
         }
         // set label for this sample
-        ttl.ptr<int>()[j + testingPos] = i - userFiles.size() / 2;
+        ttl.ptr<int>(j + testingPos)[0] = i - userFiles.size() / 2;
       }
     }
     testingPos += testingImageCount;
@@ -491,18 +491,16 @@ void loadTrainingData(LoadingParams params,
   const uint32_t cols = trainingData.cols;
   for (uint32_t i = 0 ; i < trainingSize ; i ++) {
     // training data
-    float* rowData = tnd.ptr<float>() + i * tnd.cols;
     for (uint32_t j = 0 ; j < cols ; j ++) {
-      trainingData.ptr<float>()[i * cols + j] = rowData[j];
+      trainingData.ptr<float>(i)[j] = tnd.ptr<float>(i)[j];
     }
     // training label
-    trainingLabel.ptr<int>()[i] = tnl.ptr<int>()[i];
+    trainingLabel.ptr<int>(i)[0] = tnl.ptr<int>(i)[0];
   }
   for (uint32_t i = 0 ; i < testingSize ; i ++) {
     // testing data
-    float* rowData = ttd.ptr<float>() + i * ttd.cols;
     for (uint32_t j = 0 ; j < cols ; j ++) {
-      trainingData.ptr<float>()[(i + trainingSize) * cols + j] = rowData[j];
+      trainingData.ptr<float>(i + trainingSize)[j] = ttd.ptr<float>(i)[j];
     }
     // testing label
     trainingLabel.ptr<int>()[i + trainingSize] = ttl.ptr<int>()[i];
@@ -658,22 +656,19 @@ void FaceClassifier::setupTrainingData(Mat &data, Mat &label) {
 
     for (int i = 0 ; i < trainingData.rows ; i ++) {
       for (int j = 0 ; j < trainingData.cols ; j ++) {
-        trainingData.ptr<float>()[i*trainingData.cols + j] =
-          data.ptr<float>()[i*trainingData.cols + j];
+        trainingData.ptr<float>(i)[j] =
+          data.ptr<float>(i)[j];
       }
-      trainingLabel.ptr<int>()[i] = label.ptr<int>()[i];
+      trainingLabel.ptr<int>(i)[0] = label.ptr<int>(i)[0];
     }
-    size_t doffset = trainingData.rows * trainingData.cols;
-    size_t loffset = trainingLabel.rows;
     for (int i = 0 ; i < testingData.rows ; i ++) {
       for (int j = 0 ; j < testingData.cols ; j ++) {
-        testingData.ptr<float>()[i*testingData.cols + j] =
-          data.ptr<float>()[doffset + i*testingData.cols + j];
+        testingData.ptr<float>(i)[j] =
+          data.ptr<float>(trainingData.rows + i)[j];
       }
-      testingLabel.ptr<int>()[i] = label.ptr<int>()[loffset + i];
+      testingLabel.ptr<int>(i)[0] = label.ptr<int>(trainingLabel.rows + i)[0];
     }
   }
-
 }
 
 void FaceClassifier::saveModel() {
@@ -834,43 +829,7 @@ void FaceClassifier::train() {
 }
 
 void FaceClassifier::train(Mat& data, Mat& label) {
-  size_t testingSize = data.rows * testPercent > 1 ?
-        data.rows * testPercent : 1;
-  size_t trainingSize = data.rows - testingSize;
-
-  if (data.data && data.type() == CV_32FC1 &&
-      label.data && label.type() == CV_32SC1) {
-    trainingData = Mat(trainingSize, data.cols, data.type());
-    testingData = Mat(testingSize, data.cols, data.type());
-    trainingLabel = Mat(trainingSize, label.cols, label.type());
-    testingLabel = Mat(testingSize, label.cols, label.type());
-
-    for (int i = 0 ; i < trainingData.rows ; i ++) {
-      for (int j = 0 ; j < trainingData.cols ; j ++) {
-        trainingData.ptr<float>()[i*trainingData.cols + j] =
-          data.ptr<float>()[i*trainingData.cols + j];
-      }
-      trainingLabel.ptr<int>()[i] = label.ptr<int>()[i];
-    }
-
-    size_t doffset = trainingData.rows * trainingData.cols;
-    size_t loffset = trainingLabel.rows;
-    for (int i = 0 ; i < testingData.rows ; i ++) {
-      for (int j = 0 ; j < testingData.cols ; j ++) {
-        testingData.ptr<float>()[i*testingData.cols + j] =
-          data.ptr<float>()[doffset + i*testingData.cols + j];
-      }
-      testingLabel.ptr<int>()[i] = label.ptr<int>()[loffset + i];
-    }
-  } else {
-#ifdef DEBUG
-    fprintf(stderr, "input data not suitable for training\n");
-#endif
-
-#ifdef QT_DEBUG
-    sendMessage("input data not suitable for training");
-#endif
-  }
+  this->setupTrainingData(data, label);
   this->train();
 }
 
@@ -970,10 +929,11 @@ double FaceClassifier::testAccuracy() {
     this->svm->predict(testingData, testResult);
 
     for (int i = 0 ; i < testResult.rows ; i ++) {
-      if (static_cast<int>(testResult.ptr<float>()[i]) == testingLabel.ptr<int>()[i])
+      if (static_cast<int>(testResult.ptr<float>(i)[0]) ==
+          testingLabel.ptr<int>(i)[0])
         correct ++;
     }
-    return (double) correct / testingLabel.rows;
+    return static_cast<double>(correct) / testingLabel.rows;
   } else {
 #ifdef DEBUG
     fprintf(stderr, "SVM not trained\n");
