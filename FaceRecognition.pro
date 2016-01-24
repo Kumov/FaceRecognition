@@ -37,6 +37,6 @@ unix:!macx: LIBS += -lopencv_core -lopencv_imgproc -lopencv_imgcodecs \
                     -lopencv_objdetect -fopenmp
 unix:!macx: INCLUDEPATH += /usr/local/include
 
-windows: LIBS += -lopencv_core310 -lopencv_imgproc310 -lopencv_imgcodecs310 \
-                 -lopencv_highgui310 -lopencv_ml310 -lopencv_videoio310 \
-                 -lopencv_objdetect310
+windows: LIBS += -lopencv_core300 -lopencv_imgproc300 -lopencv_imgcodecs300 \
+                 -lopencv_highgui300 -lopencv_ml300 -lopencv_videoio300 \
+                 -lopencv_objdetect300
