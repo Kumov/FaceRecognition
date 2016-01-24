@@ -212,6 +212,20 @@ void MainWindow::takePicture() {
       setLog("loading face classifier " + modelPath + "...");
     }
 
+    double imageSize = IMAGE_SIZE;
+    bool success = true;
+    // training image size
+    if (ui->imageSizeEdit->text().length() == 0) {
+      ui->imageSizeEdit->setText(QString::number(imageSize));
+    } else {
+      imageSize = ui->imageSizeEdit->text().toDouble(&success);
+      if (!success) {
+        ui->imageSizeEdit->setText(QString::number(imageSize));
+        imageSize = IMAGE_SIZE;
+      }
+    }
+
+    faceClassifier->setImageSize(Size(imageSize, imageSize));
     int result = faceClassifier->predictImageSample(this->face);
 
     setLog("result: " + QString::number(result));
