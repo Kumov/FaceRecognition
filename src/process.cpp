@@ -97,9 +97,9 @@ namespace process {
     }
 
     for (int i = 1 ; i < gray.rows - 1 ; i ++) {
-      uchar *lastRow = gray.data + (i-1) * gray.step;
-      uchar *thisRow = gray.data + (i) * gray.step;
-      uchar *nextRow = gray.data + (i+1) * gray.step;
+      uchar *lastRow = gray.ptr<uchar>(i-1);
+      uchar *thisRow = gray.ptr<uchar>(i);
+      uchar *nextRow = gray.ptr<uchar>(i+1);
       for (int j = 1 ; j < gray.cols - 1 ; j ++) {
         uint32_t value = 0;
         if (thisRow[j] > lastRow[j-1])
@@ -119,7 +119,7 @@ namespace process {
         if (thisRow[j] > thisRow[j-1])
           value += 1;
 
-        lbp.ptr<float>()[value] ++;
+        lbp.ptr<float>(0)[value] += 1.0f;
       }
     }
   }
@@ -143,9 +143,9 @@ namespace process {
     }
 
     for (int i = 1 ; i < gray.rows - 1 ; i ++) {
-      uchar *lastRow = gray.data + (i-1) * gray.step;
-      uchar *thisRow = gray.data + (i) * gray.step;
-      uchar *nextRow = gray.data + (i+1) * gray.step;
+      uchar *lastRow = gray.ptr<uchar>(i-1);
+      uchar *thisRow = gray.ptr<uchar>(i);
+      uchar *nextRow = gray.ptr<uchar>(i+1);
       for (int j = 1 ; j < gray.cols - 1 ; j ++) {
         uint32_t value = 0;
         if (lastRow[j-1] > thisRow[j] + threshold) {
@@ -235,9 +235,9 @@ namespace process {
     }
 
     for (int i = 1 ; i < gray.rows - 1 ; i ++) {
-      uchar *lastRow = gray.data + (i-1) * gray.step;
-      uchar *thisRow = gray.data + (i) * gray.step;
-      uchar *nextRow = gray.data + (i+1) * gray.step;
+      uchar *lastRow = gray.ptr<uchar>(i-1);
+      uchar *thisRow = gray.ptr<uchar>(i);
+      uchar *nextRow = gray.ptr<uchar>(i+1);
       for (int j = 1 ; j < gray.cols - 1 ; j ++) {
         uint32_t value = 0;
         if (lastRow[j-1] - nextRow[j+1] > threshold) {
