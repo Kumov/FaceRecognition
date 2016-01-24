@@ -425,6 +425,9 @@ void MainWindow::addNewPerson() {
   if (!name.isNull() && name.length() != 0) {
     QDir imageRoot(FACE_IMAGE_DIR);
     imageRoot.mkpath(QString(".") + QDir::separator() + name);
+    imageRoot.mkpath(QString(".") + QDir::separator() + name +
+                     QDir::separator() +
+                     QString(classifier::DEFAULT_POS_DIR));
 
     // reload name list
     this->loadNameList();
