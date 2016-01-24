@@ -73,8 +73,8 @@ void TrainingDataLoader::load(Mat& trainingData,
       path = directory + string(SEPARATOR) + userFiles[i] + posDir;
     }
     scanDir(path, imagePaths, exclusion);
-    trainingSize += (size_t) (imagePaths.size() * percent);
-    testingSize += (size_t) (imagePaths.size() * (1-percent));
+    trainingSize += static_cast<size_t>(imagePaths.size() * percent);
+    testingSize += static_cast<size_t>(imagePaths.size() * (1-percent));
 
     // mappings
     names.insert(pair<int,string>((i-userFiles.size()/2),
@@ -186,12 +186,12 @@ void TrainingDataLoader::load(Mat& trainingData,
 
         // copy the x sample to tnd
         for (uint32_t k = 0 ; k < featureLength ; k ++) {
-          tnd.ptr<float>()[(j + trainingPos) * tnd.cols + k] =
-              X.ptr<float>()[k];
+          tnd.ptr<float>(j + trainingPos)[k] =
+              X.ptr<float>(0)[k];
         }
 
         // set label for this sample
-        tnl.ptr<int>()[j + trainingPos] = i - userFiles.size() / 2;
+        tnl.ptr<int>(j + trainingPos)[0] = i - userFiles.size() / 2;
       }
     }
     trainingPos += trainingImageCount;
@@ -230,11 +230,11 @@ void TrainingDataLoader::load(Mat& trainingData,
 
         // copy the x sample to tnd
         for (uint32_t k = 0 ; k < featureLength ; k ++) {
-          ttd.ptr<float>()[(j + testingPos) * ttd.cols + k] =
-              X.ptr<float>()[k];
+          ttd.ptr<float>(j + testingPos)[k] =
+              X.ptr<float>(0)[k];
         }
         // set label for this sample
-        ttl.ptr<int>()[j + testingPos] = i - userFiles.size() / 2;
+        ttl.ptr<int>(j + testingPos)[0] = i - userFiles.size() / 2;
       }
     }
     testingPos += testingImageCount;
@@ -255,21 +255,19 @@ void TrainingDataLoader::load(Mat& trainingData,
   const uint32_t cols = trainingData.cols;
   for (uint32_t i = 0 ; i < trainingSize ; i ++) {
     // training data
-    float* rowData = tnd.ptr<float>() + i * tnd.cols;
     for (uint32_t j = 0 ; j < cols ; j ++) {
-      trainingData.ptr<float>()[i * cols + j] = rowData[j];
+      trainingData.ptr<float>(i)[j] = tnd.ptr<float>(i)[j];
     }
     // training label
-    trainingLabel.ptr<int>()[i] = tnl.ptr<int>()[i];
+    trainingLabel.ptr<int>(i)[0] = tnl.ptr<int>(i)[0];
   }
   for (uint32_t i = 0 ; i < testingSize ; i ++) {
     // testing data
-    float* rowData = ttd.ptr<float>() + i * ttd.cols;
     for (uint32_t j = 0 ; j < cols ; j ++) {
-      trainingData.ptr<float>()[(i + trainingSize) * cols + j] = rowData[j];
+      trainingData.ptr<float>(i + trainingSize)[j] = ttd.ptr<float>(i)[j];
     }
     // testing label
-    trainingLabel.ptr<int>()[i + trainingSize] = ttl.ptr<int>()[i];
+    trainingLabel.ptr<int>(i + trainingSize)[0] = ttl.ptr<int>(i)[0];
   }
 
 #ifdef DEBUG
@@ -291,19 +289,19 @@ void TrainingDataLoader::brief(const Mat& mat, string& str) {
         switch (mat.type()) {
           case CV_8UC3:
             str += std::to_string(
-                  mat.ptr<uchar>()[i * mat.cols + j * mat.channels()]);
+                  mat.ptr<uchar>(i)[j * mat.channels()]);
             break;
           case CV_8UC1:
             str += std::to_string(
-                  mat.ptr<uchar>()[i * mat.cols + j]);
+                  mat.ptr<uchar>(i)[j]);
             break;
           case CV_32SC1:
             str += std::to_string(
-                  mat.ptr<int>()[i * mat.cols + j]);
+                  mat.ptr<int>(i)[j]);
             break;
           case CV_32FC1:
             str += std::to_string(
-                  static_cast<int>(mat.ptr<float>()[i * mat.cols + j]));
+                  static_cast<int>(mat.ptr<float>(i)[j]));
             break;
         }
         if (j != colLimit - 1) str += ",";
