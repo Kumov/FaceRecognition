@@ -241,7 +241,7 @@ void TrainingDataLoader::load(Mat& trainingData,
   }
 
   // debug info
-#ifdef QT_DEBUG
+#ifdef DEBUG
   cout << tnd << endl;
   cout << ttd << endl;
   cout << tnl << endl;
