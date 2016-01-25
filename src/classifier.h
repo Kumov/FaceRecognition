@@ -23,10 +23,6 @@ using cv::Ptr;
 
 namespace classifier {
 // constants
-extern const char* const DEFAULT_BG_DIR;
-extern const char* const DEFAULT_POS_DIR;
-extern const char* const DEFAULT_NEG_DIR;
-extern const char* const DEFAULT_MODEL_OUTPUT;
 extern const double DEFAULT_TEST_PERCENT;
 extern const double DEFAULT_IMAGE_SIZE;
 extern const double DEFAULT_TRAINING_STEP;

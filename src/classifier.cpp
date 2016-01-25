@@ -30,10 +30,6 @@ using cv::ml::StatModel;
 
 namespace classifier {
 // constants
-const char* const DEFAULT_BG_DIR = "bg";
-const char* const DEFAULT_POS_DIR = "/pos";
-const char* const DEFAULT_NEG_DIR = "/pos";
-const char* const DEFAULT_MODEL_OUTPUT = "facemodel.xml";
 const double DEFAULT_TEST_PERCENT = 0.1;
 const double DEFAULT_TRAINING_STEP = 0.05;
 const double DEFAULT_IMAGE_SIZE = 64;
