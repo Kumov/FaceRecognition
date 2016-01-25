@@ -88,9 +88,9 @@ class MainWindow : public QMainWindow {
   const char* MODEL_BASE_NAME = FACE_MODEL_BASE_NAME;
   const char* MODEL_EXTENSION = FACE_MODEL_EXTENSION;
   const char* MODEL_BASE_DIR = FACE_MODEL_BASE_DIR;
-  const char* BG_IMAGE_DIR = classifier::DEFAULT_BG_DIR;
-  const char* POS_DIR = classifier::DEFAULT_POS_DIR;
-  const char* NEG_DIR = classifier::DEFAULT_NEG_DIR;
+  const char* BG_IMAGE_DIR = DEFAULT_BG_DIR;
+  const char* POS_DIR = DEFAULT_POS_DIR;
+  const char* NEG_DIR = DEFAULT_NEG_DIR;
   const char* IMAGE_OUTPUT = IMAGE_OUTPUT_EXTENSION;
   const char* MAPPING_FILE = NAME_MAP;
   const char* LIST = LIST_NAME;
