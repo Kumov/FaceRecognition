@@ -1,5 +1,11 @@
 #include "common.h"
 
+// constants
+const char* const DEFAULT_BG_DIR = "bg";
+const char* const DEFAULT_POS_DIR = "/pos";
+const char* const DEFAULT_NEG_DIR = "/pos";
+const char* const DEFAULT_MODEL_OUTPUT = "facemodel.xml";
+
 static bool contain(const vector<string> data, const char* s) {
   for (uint32_t i = 0 ; i < data.size(); i ++) {
     if (strcmp(s, data[i].c_str()) == 0)
@@ -50,9 +56,9 @@ vector<string> scanDir(const string path, const vector<string> exclusion) {
 }
 
 void scanDir(const string path, vector<string>& files,
-    const vector<string> exclusion)
-{
+    const vector<string> exclusion) {
 #if defined(__unix__)
+  vector<string> scanResult;
   DIR *dir = NULL;
   struct dirent *entity = NULL;
   if((dir = opendir(path.c_str())) != NULL) {
@@ -60,10 +66,16 @@ void scanDir(const string path, vector<string>& files,
       // exclude . , .. , output file, and vector file
       if(!contain(exclusion, entity->d_name)) {
         const string file(entity->d_name);
-        files.push_back(file);
+        scanResult.push_back(file);
       }
     }
     closedir(dir);
+    for (uint32_t i = 0 ; i < scanResult.size() ; i ++) {
+      if (scanResult[i] != string(DEFAULT_BG_DIR)) {
+        files.push_back(scanResult[i]);
+      }
+    }
+    files.push_back(string(DEFAULT_BG_DIR));
   } else {
 #ifdef DEBUG
     fprintf(stderr, "Fail to open %s\n", path.c_str());
@@ -81,6 +93,12 @@ void scanDir(const string path, vector<string>& files,
         }
       }
       closedir(dir);
+      for (uint32_t i = 0 ; i < scanResult.size() ; i ++) {
+        if (scanResult[i] != string(DEFAULT_BG_DIR)) {
+          files.push_back(scanResult[i]);
+        }
+      }
+      files.push_back(string(DEFAULT_BG_DIR));
     } else {
   #ifdef DEBUG
       fprintf(stderr, "Fail to open %s\n", path.c_str());
