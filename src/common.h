@@ -36,6 +36,12 @@ const char* const SEPARATOR = "\\";
 typedef unsigned int uint32;
 typedef unsigned char uint8;
 
+// constant
+extern const char* const DEFAULT_BG_DIR;
+extern const char* const DEFAULT_POS_DIR;
+extern const char* const DEFAULT_NEG_DIR;
+extern const char* const DEFAULT_MODEL_OUTPUT;
+
 void scanDir(const string path, vector<string>& files,
              const vector<string> exclusion);
 
