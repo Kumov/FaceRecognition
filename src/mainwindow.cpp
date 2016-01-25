@@ -441,7 +441,7 @@ void MainWindow::addNewPerson() {
     imageRoot.mkpath(QString(".") + QDir::separator() + name);
     imageRoot.mkpath(QString(".") + QDir::separator() + name +
                      QDir::separator() +
-                     QString(classifier::DEFAULT_POS_DIR));
+                     QString(DEFAULT_POS_DIR));
 
     // reload name list
     this->loadNameList();
