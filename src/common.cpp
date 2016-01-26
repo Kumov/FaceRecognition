@@ -82,6 +82,7 @@ void scanDir(const string path, vector<string>& files,
 #endif
   }
 #elif defined(__WIN32)
+    vector<string> scanResult;
     DIR *dir = NULL;
     struct dirent *entity = NULL;
     if((dir = opendir(path.c_str())) != NULL) {
