@@ -34,7 +34,7 @@ const double DEFAULT_TEST_PERCENT = 0.1;
 const double DEFAULT_TRAINING_STEP = 0.05;
 const double DEFAULT_IMAGE_SIZE = 64;
 const double TEST_ACCURACY_REQUIREMENT = 0.966;
-const uint32_t MAX_ITERATION = 360;
+const uint32_t MAX_ITERATION = 160;
 // local constants
 
 /***** TrainingDataLoader ******/
