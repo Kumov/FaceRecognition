@@ -90,7 +90,7 @@ void scanDir(const string path, vector<string>& files,
         // exclude . , .. , output file, and vector file
         if(!contain(exclusion, entity->d_name)) {
           const string file(entity->d_name);
-          files.push_back(file);
+          scanResult.push_back(file);
         }
       }
       closedir(dir);
