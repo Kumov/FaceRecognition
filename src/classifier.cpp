@@ -2,7 +2,7 @@
 
 #define DEFAULT_CLASSIIFIER_TYPE C_SVC
 #define DEFAULT_CLASSIIFIER_KERNEL_TYPE RBF
-#define DEFAULT_GAMMA 0.1
+#define DEFAULT_G 0.1
 #define DEFAULT_C 1
 #define DEFAULT_NU 0.1
 #define DEFAULT_DEGREE 2
@@ -34,6 +34,7 @@ namespace classifier {
 const double DEFAULT_TEST_PERCENT = 0.1;
 const double DEFAULT_TRAINING_STEP = 0.05;
 const double DEFAULT_IMAGE_SIZE = 64;
+const double DEFAULT_GAMMA = DEFAULT_G;
 const double MIN_GAMMA = 1e-16;
 const double TEST_ACCURACY_REQUIREMENT = 0.966;
 // local constants
@@ -928,5 +929,6 @@ FeatureType FaceClassifier::getFeatureType() {
 #undef DEFAULT_P
 
 #undef LTP_THRESHOLD
+#undef MAX_ITERATION
 
 #undef MIN
