@@ -33,7 +33,7 @@
 #define VALUE_NAME "value"
 #define SELECT_TEXT "Select one..."
 
-#define INTERVAL 33
+#define INTERVAL 66
 #define PERCENT 0.76
 #define TRAINING_STEP_LEFT -1
 #define TRAINING_STEP_DELTA 0.01
