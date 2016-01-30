@@ -18,6 +18,7 @@ TrainingTask::TrainingTask(QString _faceImageDirectory,
                            double _loadingPercent,
                            double _size,
                            double _trainingStep,
+                           double _gamma,
                            FeatureType _featureType) {
   faceImageDirectory = _faceImageDirectory;
   modelBaseName = _modelBaseName;
@@ -26,6 +27,7 @@ TrainingTask::TrainingTask(QString _faceImageDirectory,
   loadingPercent = _loadingPercent;
   trainingStep = _trainingStep;
   trainingSize = Size(_size, _size);
+  defaultGamma = _gamma;
   featureType = _featureType;
 }
 
@@ -78,7 +80,7 @@ void TrainingTask::run() {
   if (faceClassifier == nullptr) {
     sendMessage("creating trainer...");
     FaceClassifierParams classifierParam(trainingSize,
-                                         1.0, trainingStep,
+                                         defaultGamma, trainingStep,
                                          1.0 - loadingPercent);
     faceClassifier = new FaceClassifier(classifierParam,
                                         trainingData,
