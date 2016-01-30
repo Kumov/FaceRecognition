@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1024</width>
-    <height>858</height>
+    <height>862</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -230,162 +230,193 @@
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="imageSizeLayout">
+          <layout class="QVBoxLayout" name="trainingParameterLayout">
            <item>
-            <widget class="QLabel" name="imageSizeLabel">
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>image size:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="imageSizeEdit">
-             <property name="maximumSize">
-              <size>
-               <width>36</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>64</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="trainingStepLayout">
-           <item>
-            <widget class="QLabel" name="label">
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>training step:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="trainingStepSelectLayout">
+            <layout class="QHBoxLayout" name="imageSizeLayout">
              <item>
-              <widget class="QSlider" name="tssSlider">
+              <widget class="QLabel" name="imageSizeLabel">
                <property name="maximumSize">
                 <size>
                  <width>16777215</width>
                  <height>20</height>
                 </size>
                </property>
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+               <property name="text">
+                <string>image size:</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="tssLabel">
-               <property name="minimumSize">
-                <size>
-                 <width>60</width>
-                 <height>0</height>
-                </size>
-               </property>
+              <widget class="QLineEdit" name="imageSizeEdit">
                <property name="maximumSize">
                 <size>
-                 <width>60</width>
-                 <height>12</height>
+                 <width>36</width>
+                 <height>20</height>
                 </size>
                </property>
                <property name="text">
-                <string>0.1</string>
+                <string>64</string>
                </property>
               </widget>
              </item>
             </layout>
            </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="radioGroup">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>60</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>60</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Sans</family>
-            </font>
-           </property>
-           <property name="title">
-            <string>feature type:</string>
-           </property>
-           <widget class="QWidget" name="horizontalLayoutWidget">
-            <property name="geometry">
-             <rect>
-              <x>6</x>
-              <y>20</y>
-              <width>231</width>
-              <height>31</height>
-             </rect>
-            </property>
-            <layout class="QHBoxLayout" name="rbGroupLayout">
+           <item>
+            <layout class="QHBoxLayout" name="startingGammaLayout">
              <item>
-              <widget class="QRadioButton" name="rbLBP">
-               <property name="font">
-                <font>
-                 <family>Sans</family>
-                </font>
+              <widget class="QLabel" name="startingGammaLabel">
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>20</height>
+                </size>
                </property>
                <property name="text">
-                <string>LBP</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
+                <string>starting gamma:</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QRadioButton" name="rbLTP">
-               <property name="font">
-                <font>
-                 <family>Sans</family>
-                </font>
-               </property>
-               <property name="text">
-                <string>LTP</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="rbCSLTP">
-               <property name="font">
-                <font>
-                 <family>Sans</family>
-                </font>
-               </property>
-               <property name="text">
-                <string>CSLTP</string>
+              <widget class="QLineEdit" name="startingGamma">
+               <property name="maximumSize">
+                <size>
+                 <width>60</width>
+                 <height>20</height>
+                </size>
                </property>
               </widget>
              </item>
             </layout>
-           </widget>
-          </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="trainingStepLayout">
+             <item>
+              <widget class="QGroupBox" name="radioGroup">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>60</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>60</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Sans</family>
+                </font>
+               </property>
+               <property name="title">
+                <string>feature type:</string>
+               </property>
+               <widget class="QWidget" name="horizontalLayoutWidget">
+                <property name="geometry">
+                 <rect>
+                  <x>6</x>
+                  <y>20</y>
+                  <width>231</width>
+                  <height>31</height>
+                 </rect>
+                </property>
+                <layout class="QHBoxLayout" name="rbGroupLayout">
+                 <item>
+                  <widget class="QRadioButton" name="rbLBP">
+                   <property name="font">
+                    <font>
+                     <family>Sans</family>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>LBP</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="rbLTP">
+                   <property name="font">
+                    <font>
+                     <family>Sans</family>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>LTP</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="rbCSLTP">
+                   <property name="font">
+                    <font>
+                     <family>Sans</family>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>CSLTP</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label">
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>training step:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="trainingStepSelectLayout">
+               <item>
+                <widget class="QSlider" name="tssSlider">
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="tssLabel">
+                 <property name="minimumSize">
+                  <size>
+                   <width>60</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>60</width>
+                   <height>12</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>0.1</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </item>
          <item>
           <widget class="QPushButton" name="trainButton">

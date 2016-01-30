@@ -26,6 +26,7 @@ class TrainingTask : public QThread {
                double lp = (1-classifier::DEFAULT_TEST_PERCENT),
                double s = classifier::DEFAULT_IMAGE_SIZE,
                double ts = classifier::DEFAULT_TRAINING_STEP,
+               double g = classifier::DEFAULT_GAMMA,
                FeatureType ft = classifier::LBP);
   virtual ~TrainingTask();
   virtual void run();
@@ -42,6 +43,7 @@ class TrainingTask : public QThread {
   QString currentModelPath, modelBasePath;
   double loadingPercent;
   double trainingStep;
+  double defaultGamma;
   FeatureType featureType;
   map<int, string> names;
   FaceClassifier* faceClassifier = nullptr;
