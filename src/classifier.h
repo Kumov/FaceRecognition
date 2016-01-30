@@ -27,7 +27,7 @@ extern const double DEFAULT_TEST_PERCENT;
 extern const double DEFAULT_IMAGE_SIZE;
 extern const double DEFAULT_TRAINING_STEP;
 extern const double TEST_ACCURACY_REQUIREMENT;
-extern const uint32_t MAX_ITERATION;
+extern const double MIN_GAMMA;
 
 // supported feature type
 typedef enum {
@@ -193,7 +193,6 @@ class FaceClassifier : public QObject {
   FaceClassifierKernelType kernelType;
   FeatureType featureType;
   double gamma, c, nu, degree, coef0, p;
-  double gammaCache;
   double trainingStep, testPercent;
   Mat trainingData, testingData;
   Mat trainingLabel, testingLabel;
