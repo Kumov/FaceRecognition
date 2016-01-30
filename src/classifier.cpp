@@ -10,6 +10,7 @@
 #define DEFAULT_P 0
 
 #define LTP_THRESHOLD 25
+#define MAX_ITERATION 1000
 
 // macro
 #undef MIN
@@ -33,8 +34,8 @@ namespace classifier {
 const double DEFAULT_TEST_PERCENT = 0.1;
 const double DEFAULT_TRAINING_STEP = 0.05;
 const double DEFAULT_IMAGE_SIZE = 64;
+const double MIN_GAMMA = 1e-16;
 const double TEST_ACCURACY_REQUIREMENT = 0.966;
-const uint32_t MAX_ITERATION = 360;
 // local constants
 
 /***** TrainingDataLoader ******/
@@ -694,65 +695,8 @@ void FaceClassifier::train() {
     double maxAccuracy = 0;
     double maxGamma = 0;
     double accuracy = 0;
-
-    // cache up original parameters
-    this->gammaCache = this->gamma;
-
-    for (unsigned int i = 0 ; i < MAX_ITERATION ; i ++) {
-      this->svm->train(td);
-      accuracy = this->testAccuracy();
-      if (accuracy > maxAccuracy) {
-        maxAccuracy = accuracy;
-        maxGamma = this->gamma;
-      }
-
-#ifdef DEBUG
-      fprintf(stdout, "test accuracy: %lf\n", accuracy);
-#endif
-
-      sendMessage(QString("test accuracy: ") +
-                  QString::number(accuracy) +
-                  QString(" | gamma = ") +
-                  QString::number(this->gamma) +
-                  QString(" | continue to update..."));
-
-      if (accuracy >= TEST_ACCURACY_REQUIREMENT) {
-        determineFeatureType();
-        sendMessage(QString("test accuracy: ") +
-                    QString::number(accuracy) +
-                    QString(" | requirement reach | stop training"));
-        return;
-      }
-
-      double l = 0;
-      switch (this->kernelType) {
-        case LINEAR:
-          break;
-        case POLY:
-          l = log10(this->gamma);
-          l -= trainingStep;
-          this->gamma = pow(10, l);
-          break;
-        case RBF:
-          l = log10(this->gamma);
-          l -= trainingStep;
-          this->gamma = pow(10, l);
-          break;
-        case SIGMOID:
-          l = log10(this->gamma);
-          l -= trainingStep;
-          this->gamma = pow(10, l);
-          break;
-      }
-      this->setupSVM();
-    }
-
-#ifdef QT_DEBUG
-    sendMessage(QString("increasing training parameter"));
-#endif
-
-    // restore gamma to original value
-    this->gamma = this->gammaCache;
+    double l = 0;
+    double d = 0;
 
     for (unsigned int i = 0 ; i < MAX_ITERATION ; i ++) {
       this->svm->train(td);
@@ -780,27 +724,30 @@ void FaceClassifier::train() {
         return;
       }
 
-      double l = 0;
-      switch (this->kernelType) {
-        case LINEAR:
-          break;
-        case POLY:
-          l = log10(this->gamma);
-          l += trainingStep;
-          this->gamma = pow(10, l);
-          break;
-        case RBF:
-          l = log10(this->gamma);
-          l += trainingStep;
-          this->gamma = pow(10, l);
-          break;
-        case SIGMOID:
-          l = log10(this->gamma);
-          l += trainingStep;
-          this->gamma = pow(10, l);
-          break;
+      if (this->kernelType == LINEAR) {
+      } else if (this->kernelType == POLY) {
+        d = this->degree;
+        d ++;
+        this->degree = d;
+        l = log10(this->gamma);
+        l -= trainingStep;
+        this->gamma = pow(10, l);
+      } else if (this->kernelType == RBF) {
+        l = log10(this->gamma);
+        l -= trainingStep;
+        this->gamma = pow(10, l);
+      } else if (this->kernelType == SIGMOID) {
+        l = log10(this->gamma);
+        l -= trainingStep;
+        this->gamma = pow(10, l);
       }
+
+      // set the variable after update
       this->setupSVM();
+      // break the loop if min gamma is reached
+      if (this->gamma < MIN_GAMMA) {
+        break;
+      }
     }
 
     // if desire accuracy cannot reach
