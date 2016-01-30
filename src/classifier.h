@@ -26,6 +26,7 @@ namespace classifier {
 extern const double DEFAULT_TEST_PERCENT;
 extern const double DEFAULT_IMAGE_SIZE;
 extern const double DEFAULT_TRAINING_STEP;
+extern const double DEFAULT_GAMMA;
 extern const double TEST_ACCURACY_REQUIREMENT;
 extern const double MIN_GAMMA;
 
