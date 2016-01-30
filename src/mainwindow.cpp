@@ -110,6 +110,7 @@ void MainWindow::train() {
     // get training parameter
     double imageSize = IMAGE_SIZE;
     double trainingStep = TRAINING_STEP;
+    double gamma = classifier::DEFAULT_GAMMA;
     bool success = true;
     // training image size
     if (ui->imageSizeEdit->text().length() == 0) {
@@ -133,6 +134,19 @@ void MainWindow::train() {
       }
     }
 
+    // default gamma value
+    if (this->ui->startingGamma->text().length() == 0) {
+      ui->startingGamma->setText(
+            QString::number(classifier::DEFAULT_GAMMA));
+    } else {
+      gamma = ui->startingGamma->text().toDouble(&success);
+      if (!success) {
+        ui->startingGamma->setText(
+              QString::number(classifier::DEFAULT_GAMMA));
+        gamma = classifier::DEFAULT_GAMMA;
+      }
+    }
+
     // init training task
     trainingTask = new TrainingTask(FACE_IMAGE_DIR,
                                     MODEL_BASE_NAME,
@@ -140,6 +154,7 @@ void MainWindow::train() {
                                     MODEL_BASE_DIR,
                                     LOADING_PERCENT,
                                     imageSize, trainingStep,
+                                    gamma,
                                     featureType);
     connect(trainingTask, SIGNAL(sendMessage(QString)),
             this, SLOT(setLog(QString)));
