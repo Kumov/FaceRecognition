@@ -12,6 +12,7 @@ TARGET = FaceRecognition
 TEMPLATE = app
 
 CONFIG += c++11
+DEFINES += DEBUG
 
 SOURCES += src/main.cpp\
            src/mainwindow.cpp \
