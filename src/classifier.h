@@ -34,7 +34,8 @@ extern const double MIN_GAMMA;
 typedef enum {
   LBP,      // local binary pattern
   LTP,      // local ternary pattern
-  CSLTP     // central symmetric local ternary pattern
+  CSLTP,    // central symmetric local ternary pattern
+  HAAR
 } FeatureType;
 
 // params for loading
