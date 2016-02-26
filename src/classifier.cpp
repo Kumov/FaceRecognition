@@ -101,6 +101,9 @@ void TrainingDataLoader::load(Mat& trainingData,
     case CSLTP:
       featureLength = process::CSLTP_FEATURE_LENGTH;
       break;
+    case HAAR:
+      featureLength = 0;
+      break;
   }
 
 #ifdef DEBUG
@@ -168,6 +171,14 @@ void TrainingDataLoader::load(Mat& trainingData,
             process::computeCSLTP(resized, X, LTP_THRESHOLD);
             processingType = "CSLTP";
             break;
+          case HAAR:
+            process::computeHaar(resized, X, featureLength);
+            if (tnd.cols == 0) {
+              tnd = Mat::zeros(trainingSize, featureLength,
+                               CV_32FC1);
+            }
+            processingType = "HAAR";
+            break;
         }
 
 #ifdef DEBUG
@@ -219,6 +230,14 @@ void TrainingDataLoader::load(Mat& trainingData,
             process::computeCSLTP(resized, X, LTP_THRESHOLD);
             processingType = "CSLTP";
             break;
+          case HAAR:
+            process::computeHaar(resized, X, featureLength);
+            processingType = "HAAR";
+            if (ttd.cols == 0) {
+              ttd = Mat::zeros(testingSize, featureLength,
+                               CV_32FC1);
+            }
+            break;
         }
 
         sendMessage(QString("Testing: loading image from ") +
@@ -240,10 +259,10 @@ void TrainingDataLoader::load(Mat& trainingData,
 
   // debug info
 #ifdef DEBUG
-  cout << tnd << endl;
-  cout << ttd << endl;
-  cout << tnl << endl;
-  cout << ttl << endl;
+//  cout << tnd << endl;
+//  cout << ttd << endl;
+//  cout << tnl << endl;
+//  cout << ttl << endl;
 #endif
 
   // put all data/lables into trainingData/Labels
@@ -365,6 +384,9 @@ void loadTrainingData(LoadingParams params,
     case CSLTP:
       featureLength = process::CSLTP_FEATURE_LENGTH;
       break;
+    case HAAR:
+      featureLength = 0;
+      break;
   }
 
 #ifdef DEBUG
@@ -423,6 +445,13 @@ void loadTrainingData(LoadingParams params,
           case CSLTP:
             process::computeCSLTP(resized, X, LTP_THRESHOLD);
             break;
+          case HAAR:
+            process::computeHaar(resized, X, featureLength);
+            if (tnd.cols == 0) {
+              tnd = Mat::zeros(trainingSize, featureLength,
+                               CV_32FC1);
+            }
+            break;
         }
         // copy the x sample to tnd
         for (uint32_t k = 0 ; k < featureLength ; k ++) {
@@ -458,6 +487,13 @@ void loadTrainingData(LoadingParams params,
             break;
           case CSLTP:
             process::computeCSLTP(resized, X, LTP_THRESHOLD);
+            break;
+          case HAAR:
+            process::computeHaar(resized, X, featureLength);
+            if (ttd.cols == 0) {
+              ttd = Mat::zeros(testingSize, featureLength,
+                               CV_32FC1);
+            }
             break;
         }
 
@@ -825,6 +861,16 @@ int FaceClassifier::predictImageSample(Mat& imageSample) {
     case CSLTP:
       process::computeCSLTP(resized, sample, LTP_THRESHOLD);
       break;
+    default:
+      unsigned int featureSize = 0;
+      process::computeHaar(resized, sample, featureSize);
+      if (static_cast<int>(featureSize) != this->svm->getVarCount()) {
+#ifdef DEBUG
+        fprintf(stderr, "inconsistant feature length");
+#endif
+        return INT_MAX;
+      }
+      break;
   }
 
   // debug sample matrix
@@ -908,6 +954,9 @@ void FaceClassifier::determineFeatureType() {
       break;
     case process::CSLTP_FEATURE_LENGTH:
       this->featureType = CSLTP;
+      break;
+    default:
+      this->featureType = HAAR;
       break;
   }
 }
