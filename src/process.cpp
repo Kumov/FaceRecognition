@@ -4,6 +4,7 @@
 using cv::Vec3b;
 using cv::Point;
 using cv::Size;
+using cv::Rect;
 using cv::getRotationMatrix2D;
 using cv::saturate_cast;
 using cv::max;
@@ -276,4 +277,100 @@ namespace process {
       }
     }
   }
+
+  static unsigned int sum(Mat& mat) {
+    if (mat.type() != CV_8UC1) {
+      return 0;
+    }
+
+    unsigned int value = 0;
+    for (int y = 0 ; y < mat.rows ; y ++) {
+      for (int x = 0 ; x < mat.cols ; x ++) {
+          const int index = y*mat.step + x;
+          value += mat.ptr<uchar>()[index];
+      }
+    }
+    return value;
+  }
+
+  void computeHaar(Mat& image, Mat& haar,
+                  unsigned int& featureLength) {
+    Mat gray;
+
+    if (image.channels() == 3) {
+      cvtColor(image, gray, CV_BGR2GRAY);
+    } else if (image.channels() == 4) {
+      cvtColor(image, gray, CV_BGRA2GRAY);
+    } else if (image.channels() == 1) {
+      image.copyTo(gray);
+    } else {
+#ifdef DEBUG
+      cout << "ERROR: image null" << endl;
+#endif
+      return;
+    }
+
+    const unsigned int boxSize = 4;
+    const int xBound = gray.cols - boxSize;
+    const int yBound = gray.rows - boxSize;
+    if (xBound <= 0 || yBound <= 0) {
+#ifdef DEBUG
+      cout << "ERROR: image too small" << endl;
+#endif
+      return;
+    }
+
+    featureLength = xBound * yBound;
+    haar = Mat::zeros(1, featureLength, CV_32FC1);
+
+    for (int y = 0 ; y < yBound ; y ++) {
+      for (int x = 0 ; x < xBound ; x ++) {
+        const int index = y * xBound + x;
+        Rect roi(x, y, boxSize, boxSize);
+        Mat computeRegion = gray(roi).clone();
+        Mat region1, region2, region3, region4;
+
+        // edge feature 1
+        region1 = computeRegion(Rect(0, 0, 2, 4));
+        region2 = computeRegion(Rect(2, 0, 2, 4));
+        if (sum(region1) > sum(region2)) {
+          haar.ptr<float>()[index] += 1;
+        }
+
+        // edge feature 2
+        region1 = computeRegion(Rect(0, 0, 4, 2));
+        region2 = computeRegion(Rect(0, 2, 4, 2));
+        if (sum(region1) > sum(region2)) {
+          haar.ptr<float>()[index] += 2;
+        }
+
+        // line feature 1
+        region1 = computeRegion(Rect(0, 0, 1, 4));
+        region2 = computeRegion(Rect(1, 0, 2, 4));
+        region3 = computeRegion(Rect(3, 0, 1, 4));
+        if (sum(region1) + sum(region3) > sum(region2)) {
+          haar.ptr<float>()[index] += 4;
+        }
+
+        // line feature 2
+        region1 = computeRegion(Rect(0, 0, 4, 1));
+        region2 = computeRegion(Rect(0, 1, 4, 2));
+        region3 = computeRegion(Rect(0, 3, 4, 1));
+        if (sum(region1) + sum(region3) > sum(region2)) {
+          haar.ptr<float>()[index] += 8;
+        }
+
+        // rect feature
+        region1 = computeRegion(Rect(0, 0, 2, 2));
+        region2 = computeRegion(Rect(2, 0, 2, 2));
+        region3 = computeRegion(Rect(0, 2, 2, 2));
+        region4 = computeRegion(Rect(2, 2, 2, 2));
+        if (sum(region1) + sum(region4) >
+            sum(region2) + sum(region3)) {
+          haar.ptr<float>()[index] += 16;
+        }
+      }
+    }
+  }
+
 }

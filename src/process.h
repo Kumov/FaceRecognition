@@ -13,15 +13,17 @@ using std::endl;
 using cv::Mat;
 
 namespace process {
+  const unsigned int LBP_FEATURE_LENGTH = 256;
+  const unsigned int LTP_FEATURE_LENGTH = 9841;
+  const unsigned int CSLTP_FEATURE_LENGTH = 121;
   void changeBrightness(Mat& image, double alpha);
   void changeBrightness(Mat& image, double alpha, double beta);
   void rotateImage(Mat& image, const double deg);
   void computeLBP(Mat& image, Mat& lbp);
   void computeLTP(Mat& image, Mat& ltp, int threshold);
   void computeCSLTP(Mat& image, Mat& csltp, int threshold);
-  const unsigned int LBP_FEATURE_LENGTH = 256;
-  const unsigned int LTP_FEATURE_LENGTH = 9841;
-  const unsigned int CSLTP_FEATURE_LENGTH = 121;
+  void computeHaar(Mat& image, Mat& haar,
+                   unsigned int& featureLength);
 }
 
 #endif /* end of include guard: PROCESS_H */
