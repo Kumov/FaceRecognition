@@ -105,6 +105,8 @@ void MainWindow::train() {
       featureType = classifier::LTP;
     } else if (ui->rbCSLTP->isChecked()) {
       featureType = classifier::CSLTP;
+    } else if (ui->rbHAAR->isChecked()) {
+      featureType = classifier::HAAR;
     }
 
     // get training parameter
@@ -445,6 +447,10 @@ void MainWindow::loadClassifier(QString modelPath) {
       case classifier::CSLTP:
         setLog("model uses CSLTP");
         ui->statusBar->showMessage("current feature: CSLTP");
+        break;
+      case classifier::HAAR:
+        setLog("model uses HAAR");
+        ui->statusBar->showMessage("current feature: HAAR");
         break;
     }
 }
