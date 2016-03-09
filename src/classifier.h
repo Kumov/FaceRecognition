@@ -3,10 +3,16 @@
 
 #include <QtCore>
 #include <QObject>
+#include <QFile>
+#include <QXmlStreamWriter>
+#include <QRegExp>
+#include <QTextStream>
+
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/ml.hpp>
+
 #include <limits.h>
 #include <map>
 #include <vector>
@@ -170,13 +176,14 @@ class FaceClassifier : public QObject {
                  Mat& data, Mat& label);
   virtual ~FaceClassifier() {}
   void setImageSize(Size newSize);
-  void saveModel();
-  void saveModel(string modelPath);
+  void saveModel(const string modelPath,
+                 const string extraInfoPath);
   void train();
   void train(Mat& data, Mat& label);
   int predict(Mat& sample);
   int predictImageSample(Mat& imageSample);
-  bool load(string modelPath);
+  bool load(const string modelPath,
+            const string extraPath);
   double testAccuracy();
   bool isLoaded();
   void determineFeatureType();

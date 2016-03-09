@@ -16,6 +16,10 @@
 #undef MIN
 #define MIN(n1, n2) (n1 < n2 ? n1 : n2)
 
+#define IMAGE_WIDTH_KEY "ImageWidth"
+#define IMAGE_HEIGHT_KEY "ImageHeight"
+#define FEATURE_TYPE_KEY "FeatureType"
+
 #ifdef QT_DEBUG
 using std::cout;
 using std::endl;
@@ -709,12 +713,28 @@ void FaceClassifier::setImageSize(Size newSize) {
   this->imageSize = newSize;
 }
 
-void FaceClassifier::saveModel() {
-  this->svm->save(DEFAULT_MODEL_OUTPUT);
-}
-
-void FaceClassifier::saveModel(string modelPath) {
+void FaceClassifier::saveModel(const string modelPath,
+                               const string extraInfoPath) {
   this->svm->save(modelPath);
+
+  QFile nameMapFile(QString(extraInfoPath.c_str()));
+
+  if (nameMapFile.open(QIODevice::WriteOnly)) {
+    QXmlStreamWriter out(&nameMapFile);
+    out.setAutoFormatting(true);
+    out.setAutoFormattingIndent(2);
+    out.writeStartDocument();
+
+    // write image width/height and feature type to extra info
+    out.writeTextElement(IMAGE_WIDTH_KEY,
+                         QString::number(imageSize.width));
+    out.writeTextElement(IMAGE_HEIGHT_KEY,
+                         QString::number(imageSize.height));
+    out.writeTextElement(FEATURE_TYPE_KEY,
+                         QString::number(featureType));
+
+    out.writeEndDocument();
+  }
 }
 
 void FaceClassifier::train() {
@@ -903,10 +923,51 @@ int FaceClassifier::predictImageSample(Mat& imageSample) {
   }
 }
 
-bool FaceClassifier::load(string modelPath) {
+bool FaceClassifier::load(const string modelPath,
+                          const string extraPath) {
   try {
     svm = StatModel::load<SVM>(modelPath);
-    determineFeatureType();
+
+    // read extra info
+    QFile extraInfo(extraPath.c_str());
+    if (extraInfo.open(QIODevice::ReadOnly)) {
+      QTextStream reader(&extraInfo);
+      QString content = reader.readAll();
+
+      QRegExp widthFinder(QString("<") +
+                          QString(IMAGE_WIDTH_KEY) +
+                          ">([0-9]+)</" +
+                          QString(IMAGE_WIDTH_KEY) + ">");
+      QRegExp heightFinder(QString("<") +
+                          QString(IMAGE_HEIGHT_KEY) +
+                          ">([0-9]+)</" +
+                           QString(IMAGE_HEIGHT_KEY) + ">");
+      QRegExp featureFinder(QString("<") +
+                          QString(FEATURE_TYPE_KEY) +
+                          ">([0-9]+)</" +
+                           QString(FEATURE_TYPE_KEY) + ">");
+
+      if (widthFinder.indexIn(content)) {
+        QString width = widthFinder.cap(1);
+        imageSize.width = width.toDouble();
+        sendMessage("image width: " + width);
+      }
+
+      if (heightFinder.indexIn(content)) {
+        QString height = heightFinder.cap(1);
+        imageSize.height = height.toDouble();
+        sendMessage("image height: " + height);
+      }
+
+      if (featureFinder.indexIn(content)) {
+        QString feature = featureFinder.cap(1);
+        featureType = static_cast<FeatureType>(feature.toInt());
+        sendMessage("feature type: " + feature);
+      }
+
+      extraInfo.close();
+    }
+
     return true;
   } catch (cv::Exception e) {
     sendMessage("Error: Not a valid svm:");
