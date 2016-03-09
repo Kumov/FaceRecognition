@@ -23,6 +23,7 @@ class TrainingTask : public QThread {
                QString _modelBaseName,
                QString _modelExtension,
                QString _modelBasePath,
+               QString _extraInfoBaseName,
                double lp = (1-classifier::DEFAULT_TEST_PERCENT),
                double s = classifier::DEFAULT_IMAGE_SIZE,
                double ts = classifier::DEFAULT_TRAINING_STEP,
@@ -36,11 +37,13 @@ class TrainingTask : public QThread {
 
  signals:
   void sendMessage(QString message);
-  void complete(QString modelPath, QMap<int, QString> names);
+  void complete(QString modelPath,
+                QString extraPath,
+                QMap<int, QString> names);
 
  private:
   QString faceImageDirectory, modelBaseName, modelExtension;
-  QString currentModelPath, modelBasePath;
+  QString modelBasePath, extraInfoBaseName;
   double loadingPercent;
   double trainingStep;
   double defaultGamma;

@@ -15,6 +15,7 @@ TrainingTask::TrainingTask(QString _faceImageDirectory,
                            QString _modelBaseName,
                            QString _modelExtension,
                            QString _modelBasePath,
+                           QString _extraInfoBaseName,
                            double _loadingPercent,
                            double _size,
                            double _trainingStep,
@@ -24,6 +25,7 @@ TrainingTask::TrainingTask(QString _faceImageDirectory,
   modelBaseName = _modelBaseName;
   modelExtension = _modelExtension;
   modelBasePath = _modelBasePath;
+  extraInfoBaseName = _extraInfoBaseName;
   loadingPercent = _loadingPercent;
   trainingStep = _trainingStep;
   trainingSize = Size(_size, _size);
@@ -55,12 +57,20 @@ void TrainingTask::run() {
   if (!modelBaseDirectory.exists()) {
     modelBaseDirectory.mkpath(".");
   }
-  currentModelPath = modelBasePath +
+  // compute model path
+  QString currentModelPath = modelBasePath +
       QDir::separator() +
       QString(modelBaseName) +
       QString::number(currenTime.toTime_t()) +
       QString(modelExtension);
   sendMessage("current model path: " + currentModelPath);
+
+  QString currentExtraInfoPath = modelBasePath +
+      QDir::separator() +
+      QString(extraInfoBaseName) +
+      QString::number(currenTime.toTime_t()) +
+      QString(modelExtension);
+  sendMessage("current extra info path: " + currentExtraInfoPath);
 
   sendMessage("loading training data...");
   // prepare loading parameters
@@ -72,9 +82,10 @@ void TrainingTask::run() {
   connect(&loader, SIGNAL(sendMessage(QString)), this,
           SLOT(captureMessage(QString)));
   loader.load(trainingData, trainingLabel, names);
+  sendMessage("training data loaded");
+
   // old way to load data
   // loadTrainingData(params, trainingData, trainingLabel, names);
-  sendMessage("training data loaded");
 
   // training
   if (faceClassifier == nullptr) {
@@ -93,7 +104,8 @@ void TrainingTask::run() {
     sendMessage("training started...");
     faceClassifier->train();
     sendMessage("saving model...");
-    faceClassifier->saveModel(currentModelPath.toStdString());
+    faceClassifier->saveModel(currentModelPath.toStdString(),
+                              currentExtraInfoPath.toStdString());
   }
 
   // prepare the data as QMap<int, QString>
@@ -101,7 +113,7 @@ void TrainingTask::run() {
   for (auto it = names.begin() ; it != names.end() ; it ++) {
     nameMap.insert(it->first, QString(it->second.c_str()));
   }
-  complete(currentModelPath, nameMap);
+  complete(currentModelPath, currentExtraInfoPath, nameMap);
 }
 
 void TrainingTask::captureMessage(QString message) {
