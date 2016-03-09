@@ -24,6 +24,7 @@
 #define FACE_MODEL_BASE_NAME "facemodel"
 #define FACE_MODEL_EXTENSION ".xml"
 #define FACE_MODEL_BASE_DIR "svmmodel"
+#define FACE_EXTRA_INFO_BASENAME "extra"
 #define IMAGE_OUTPUT_EXTENSION ".jpg"
 #define NAME_MAP "names.xml"
 
@@ -53,7 +54,8 @@ class MainWindow : public QMainWindow {
   ~MainWindow();
   void writeMap();
   void readMap();
-  void loadClassifier(QString modelPath);
+  void loadClassifier(const QString modelPath,
+                      const QString extraPath);
   void loadNameList();
   void loadNameMap();
 
@@ -61,6 +63,7 @@ class MainWindow : public QMainWindow {
   void setImage();
   void train();
   void trainingComplete(QString modelPath,
+                        QString extraPath,
                         QMap<int, QString> names);
   void takePicture();
   void resume();
@@ -88,6 +91,7 @@ class MainWindow : public QMainWindow {
   const char* MODEL_BASE_NAME = FACE_MODEL_BASE_NAME;
   const char* MODEL_EXTENSION = FACE_MODEL_EXTENSION;
   const char* MODEL_BASE_DIR = FACE_MODEL_BASE_DIR;
+  const char* EXTRA_INFO_BASENAME = FACE_EXTRA_INFO_BASENAME;
   const char* BG_IMAGE_DIR = DEFAULT_BG_DIR;
   const char* POS_DIR = DEFAULT_POS_DIR;
   const char* NEG_DIR = DEFAULT_NEG_DIR;

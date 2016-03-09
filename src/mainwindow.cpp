@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->faceLayout->addWidget(faceDisplay);
 
   // init
-  ui->rbLBP->setChecked(true);
+  ui->rbHAAR->setChecked(true);
 
   // start timer to update frame
   timer->start(CAMEAR_INTERVAL);
@@ -154,6 +154,7 @@ void MainWindow::train() {
                                     MODEL_BASE_NAME,
                                     MODEL_EXTENSION,
                                     MODEL_BASE_DIR,
+                                    EXTRA_INFO_BASENAME,
                                     LOADING_PERCENT,
                                     imageSize, trainingStep,
                                     gamma,
@@ -161,9 +162,9 @@ void MainWindow::train() {
     connect(trainingTask, SIGNAL(sendMessage(QString)),
             this, SLOT(setLog(QString)));
     connect(trainingTask,
-            SIGNAL(complete(QString, QMap<int, QString>)),
+            SIGNAL(complete(QString, QString, QMap<int, QString>)),
             this,
-            SLOT(trainingComplete(QString, QMap<int, QString>)));
+            SLOT(trainingComplete(QString, QString, QMap<int, QString>)));
     trainingTask->start();
   } else {
     setLog("training already started!!");
@@ -171,6 +172,7 @@ void MainWindow::train() {
 }
 
 void MainWindow::trainingComplete(QString modelPath,
+                                  QString extraPath,
                                   QMap<int, QString> names) {
   // clean up after training task complete
   // and retrieve name map and model path
@@ -187,17 +189,25 @@ void MainWindow::trainingComplete(QString modelPath,
     setLog("new model written: " + modelPath);
 
     // copy to target
-    QString target = QString(MODEL_BASE_DIR) +
+    QString modelTarget = QString(MODEL_BASE_DIR) +
         QDir::separator() + QString(MODEL_BASE_NAME) +
         QString(MODEL_EXTENSION);
-    if (QFile::exists(target)) {
-      QFile::remove(target);
+    if (QFile::exists(modelTarget)) {
+      QFile::remove(modelTarget);
     }
-    QFile::copy(modelPath, target);
+    QFile::copy(modelPath, modelTarget);
+
+    QString extraTarget = QString(MODEL_BASE_DIR) +
+        QDir::separator() + QString(EXTRA_INFO_BASENAME) +
+        QString(MODEL_EXTENSION);
+    if (QFile::exists(extraTarget)) {
+      QFile::remove(extraTarget);
+    }
+    QFile::copy(extraPath, extraTarget);
     setLog("new model copied");
 
     // load the new model
-    loadClassifier(target);
+    loadClassifier(modelTarget, extraTarget);
 
     // output new name map
     this->names = names;
@@ -225,7 +235,10 @@ void MainWindow::takePicture() {
       QString modelPath = QString(MODEL_BASE_DIR) +
           QDir::separator() + QString(MODEL_BASE_NAME) +
           QString(MODEL_EXTENSION);
-      this->loadClassifier(modelPath);
+      QString extraPath = QString(MODEL_BASE_DIR) +
+          QDir::separator() + QString(EXTRA_INFO_BASENAME) +
+          QString(MODEL_EXTENSION);
+      this->loadClassifier(modelPath, extraPath);
       setLog("loading face classifier " + modelPath + "...");
     }
 
@@ -430,8 +443,10 @@ void MainWindow::loadNameMap() {
   }
 }
 
-void MainWindow::loadClassifier(QString modelPath) {
-    this->faceClassifier->load(modelPath.toStdString());
+void MainWindow::loadClassifier(const QString modelPath,
+                                const QString extraPath) {
+    this->faceClassifier->load(modelPath.toStdString(),
+                               extraPath.toStdString());
     setLog("model loaded");
     // set current feature
     FeatureType featureType = faceClassifier->getFeatureType();
@@ -511,7 +526,11 @@ void MainWindow::importModel(bool) {
                                    QDir::home().dirName(),
                                    tr("XML files (*.xml)"));
   if (modelName.length() > 0) {
-    if (this->faceClassifier->load(modelName.toStdString())) {
+    QString extraInfo = QString(MODEL_BASE_DIR) +
+        QDir::separator() + QString(EXTRA_INFO_BASENAME) +
+        QString(MODEL_EXTENSION);
+    if (this->faceClassifier->load(modelName.toStdString(),
+                                   extraInfo.toStdString())) {
       setLog("model loaded");
     } else {
       setLog("model not loaded");
